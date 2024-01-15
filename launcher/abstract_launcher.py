@@ -2,32 +2,19 @@ from abc import ABC, abstractmethod
 import os
 
 class Launcher(ABC):
-    def __init__(self, path):
-        self.path = path
-
+    
     @abstractmethod
-    def launcher_file(self, path):
+    def input_data(self):
         """
-        :param path: String com o caminho do arquivo a ser importado.
+        Recebe os dados de entrada.
         
-        Creio que haverá dois tipos de importação:
-        a) por arquivos .csv/.xlsx/.xls (podemos tratar de forma grupal)
-        b) por arquivos .jpg/.png (imagens de questionários)
-        c) seria redundante acrescentar .pdf (?)
         """
         pass
 
-    def validate_file_exists(self):
+    @abstractmethod
+    def check_data(self):
         """
-        Verifica se o arquivo existe.
+        Verifica os Dados Presentes
         """
         return os.path.exists(self.path)
     
-    def get_file_extension(self):
-        """
-        Retorna a extensão do arquivo.
-        """
-        _, file_extension = os.path.splitext(self.path)
-        return file_extension.lower()
-
-   
