@@ -1,0 +1,38 @@
+py36: skipped because could not find python interpreter with spec(s): py36
+py36: SKIP ⚠ in 0.03 seconds
+py37: skipped because could not find python interpreter with spec(s): py37
+py37: SKIP ⚠ in 0 seconds
+py38: skipped because could not find python interpreter with spec(s): py38
+py38: SKIP ⚠ in 0 seconds
+pypy: skipped because could not find python interpreter with spec(s): pypy
+pypy: SKIP ⚠ in 0.01 seconds
+docs: commands[0] /home/cleyton/Documentos/ProjetosGit/csalpha/docs> sphinx-build -b html -d /home/cleyton/Documentos/ProjetosGit/csalpha/.tox/docs/tmp/doctrees . /home/cleyton/Documentos/ProjetosGit/csalpha/.tox/docs/tmp/html
+Executando Sphinx v7.2.6
+criando o diretório de saída... feito
+compilando [mo]: alvos para 0 arquivos po que estão desatualizados
+escrevendo saída… 
+compilando [html]: alvos para 8 arquivos fonte que estão desatualizados
+atualizando ambiente: [nova configuração] 8 adicionado(s), 0 alterado(s), 0 removido(s)
+[2Klendo fontes… [ 12%] console_script_setup[2Klendo fontes… [ 25%] index[2Klendo fontes… [ 38%] prompts[2Klendo fontes… [ 50%] pypi_release_checklist[2Klendo fontes… [ 62%] readme[2Klendo fontes… [ 75%] travis_pypi_setup[2Klendo fontes… [ 88%] troubleshooting[2Klendo fontes… [100%] tutorial
+procurando por arquivos agora desatualizados… nenhum encontrado
+tornando um ambiente pickle... feito
+verificando consistência... feito
+preparando documentos... feito
+copiando ativos... copiando arquivos estáticos... feito
+copiando arquivos extras... feito
+feito
+[2Kescrevendo saída… [ 12%] console_script_setup[2Kescrevendo saída… [ 25%] index[2Kescrevendo saída… [ 38%] prompts[2Kescrevendo saída… [ 50%] pypi_release_checklist[2Kescrevendo saída… [ 62%] readme[2Kescrevendo saída… [ 75%] travis_pypi_setup[2Kescrevendo saída… [ 88%] troubleshooting[2Kescrevendo saída… [100%] tutorial
+gerando índices... genindex feito
+realçando código de módulo… 
+escrevendo páginas adicionais... search feito
+despejando índice de pesquisa em English (code: en)... feito
+despejando inventário de objetos... feito
+compilação bem-sucedida, 6 avisos.
+
+As páginas HTML estão em ../.tox/docs/tmp/html.
+  py36: SKIP (0.03 seconds)
+  py37: SKIP (0.00 seconds)
+  py38: SKIP (0.00 seconds)
+  pypy: SKIP (0.00 seconds)
+  docs: OK (1.26=setup[0.05]+cmd[1.21] seconds)
+  congratulations :) (1.39 seconds)
