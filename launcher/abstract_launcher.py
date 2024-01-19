@@ -16,5 +16,5 @@ class Launcher(ABC):
         """
         Verifica os Dados Presentes
         """
-        return os.path.exists(self.path)
+        pass
     
