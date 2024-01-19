@@ -1,33 +1,41 @@
 from launcher.abstract_launcher import Launcher
-import pytest, os
+import pytest
 
 #Para testar a classe abstrata é necessário criar uma classe concreta Mock
-class MockLauncher(Launcher):
-   def launcher_file(self, path):
-        return f"Launching file at {path}"
+class LauncherWithAbstractMethodNotDefined(Launcher):
+   def __init__(self) -> None:
+       pass
+   
 
-def test_validate_file_exists(tmp_path):
-    test_file = tmp_path / "test_file.txt"
-    test_file.write_text("Test content")
+#Para testar a classe abstrata é necessário criar uma classe concreta Mock
+class LauncherWithAbstractMethodDefined(Launcher):
+    def __init__(self) -> None:
+        self._input_data = None  # Use a different attribute name
 
-    launcher = MockLauncher(str(test_file))
+    def input_data(self, path: str):
+        self._input_data = path
 
-    #Teste para o verificador: o arquivo existente
-    assert launcher.validate_file_exists() == True
+    def check_data(self) -> str:
+        return self._input_data
 
-    #Teste para o verificador: o arquivo não existe
-    non_existing_file = str(tmp_path / "non_existing.txt")
-    launcher = MockLauncher(non_existing_file)
-    assert launcher.validate_file_exists() == False
 
-#Teste da captura de extensão do arquivo
-def test_get_file_extension():
-
-    launcher = MockLauncher("/path/to/file.csv")
-    assert launcher.get_file_extension() == ".csv"
-
-    launcher = MockLauncher("/path/to/file.jpg")
-    assert launcher.get_file_extension() == ".jpg"
+def test_if_input_data_and_check_data_is_working():
+    launcher = LauncherWithAbstractMethodDefined()
+    launcher.input_data("test")
+    assert launcher._input_data == "test"  # Use the attribute name _input_data
+    assert launcher.check_data() == "test"
 
 
 
+def test_if_input_data_is_abstract():
+    with pytest.raises(TypeError):
+        LauncherWithAbstractMethodNotDefined()
+
+def test_if_check_data_is_abstract():
+    with pytest.raises(TypeError):
+        LauncherWithAbstractMethodNotDefined()
+
+
+# Run the tests
+if __name__ == '_main_':
+    pytest.main()
