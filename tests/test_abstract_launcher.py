@@ -1,14 +1,14 @@
-from launcher.abstract_launcher import Launcher
+from launcher.abstract_launcher import LauncherBase
 import pytest
 
 #Para testar a classe abstrata é necessário criar uma classe concreta Mock
-class LauncherWithAbstractMethodNotDefined(Launcher):
+class LauncherWithAbstractMethodNotDefined(LauncherBase):
    def __init__(self) -> None:
        pass
    
 
 #Para testar a classe abstrata é necessário criar uma classe concreta Mock
-class LauncherWithAbstractMethodDefined(Launcher):
+class LauncherWithAbstractMethodDefined(LauncherBase):
     def __init__(self) -> None:
         self._input_data = None  # Use a different attribute name
 
