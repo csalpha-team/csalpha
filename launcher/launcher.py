@@ -1,4 +1,4 @@
-from abstract_launcher import LauncherBase
+from .abstract_launcher import LauncherBase
 import warnings
 
 class Launcher(LauncherBase):
