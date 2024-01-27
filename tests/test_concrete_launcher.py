@@ -1,11 +1,12 @@
 from launcher.launcher import Launcher
+import warnings
 import pytest
 
 
 def test_if_input_data_and_check_data_is_working():
     launcher = Launcher()
     launcher.input_data(NomeAgenteVenda="testA")
-    assert launcher._input_data == "testA"  # Use the attribute name _input_data
+    assert launcher._dic_input['NomeAgenteVenda'] == "testA"  # Use the attribute name _input_data
     assert launcher.check_data()["NomeAgenteVenda"] == "testA"
 
 
