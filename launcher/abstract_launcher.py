@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 
-class Launcher(ABC):
+class LauncherBase(ABC):
     
     @abstractmethod
     def input_data(self):

@@ -1,1 +1,1 @@
-from launcher.abstract_launcher import Launcher
+from launcher.abstract_launcher import LauncherBase
