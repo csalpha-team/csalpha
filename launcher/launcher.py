@@ -29,6 +29,7 @@ class Launcher(LauncherBase):
         retornando a relação de dados preenchidos e/ou não preenchidos.
 
     """
+
     def __init__(self) -> None:
         self._dic_input = {
             "NomeAgenteVenda": None,
@@ -57,7 +58,6 @@ class Launcher(LauncherBase):
             "NumeroDoLancamento": None,
             "SituacaoCircuito": None,
             "SituacaoLancamento": None,
-        
         }
     
     def input_data(self, **kwargs) -> None:
@@ -84,7 +84,9 @@ class Launcher(LauncherBase):
                     self._dic_input[key] = value
                 else:
                     continue
-
+        #! O design inicial das contas entende o lançamento como uma linha de tabela e não como valores
+        #! indiviuais de colunas;
+                
             else:
                 warnings.warn(f"Key {key} not found in the dictionary", UserWarning)
 
