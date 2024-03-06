@@ -67,12 +67,13 @@ class Tabela(TabelaBase):
 
         for circuito_id, lancamentos in self._circuito._dict_circuito.items():
             for lancamento in lancamentos.values():
-                # Create a new row for the DataFrame using the lancamento data
+                # Cria nova linha com lançamento
                 new_row = pd.DataFrame([lancamento])
-                # Append the new row to the base DataFrame
+                # Adiciona a linha para o DF _base_df
                 self._base_df = pd.concat([self._base_df, new_row], ignore_index=True)
                 
-        # Convert columns to specified data types
+        # Converte tipos
+        #TODO: adicionar verificação mais detalhada e segura
         for col, col_type in columns_and_types.items():
             self._base_df[col] = self._base_df[col].astype(col_type)
                 
