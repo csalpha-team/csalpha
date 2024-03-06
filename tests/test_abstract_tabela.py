@@ -1,35 +1,27 @@
 from tabela.abstract_tabela import TabelaBase
 import pytest
-import pandas as pd
-
 
 
 class TabelaWithAbstractMethodNotDefined(TabelaBase):
-   def __init__(self) -> None:
-       pass
-
+    """
+    Concrete class inheriting from TabelaBase where abstract methods are not defined.
+    """
+    pass
 
 class TabelaWithAbstractMethodDefined(TabelaBase):
-    def __init__(self) -> None:
-        self._df = pd.DataFrame([]).astype({})
+    """
+    Concrete class inheriting from TabelaBase where abstract methods are defined.
+    """
+    def create_tabela(self, **kwargs):
+        pass
 
-    def consolidate_data(self, **kwargs) -> pd.DataFrame:
-        return self._consolidate_data
-
-
-
-def test_if_consolidate_data_is_working():
-    tabela  = TabelaWithAbstractMethodDefined()
-    tabela._consolidate_data(kwargs={'data': 'haroldo'})
-    assert isinstance(_consolidate_data, pd.DataFrame)
-
-
-def test_if_consolidate_data_is_abstract():
+def test_create_tabela_is_abstract():
+    """
+    Test if create_tabela method is abstract.
+    """
     with pytest.raises(TypeError):
         TabelaWithAbstractMethodNotDefined()
 
-
-
 # Run the tests
-if __name__ == '_main_':
+if __name__ == '__main__':
     pytest.main()

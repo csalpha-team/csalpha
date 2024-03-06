@@ -1,4 +1,5 @@
-from .tabela import TabelaBase
+from tabela.abstract_tabela import TabelaBase
+from circuito.circuito import Circuito
 import pandas as pd
 
 
@@ -8,45 +9,30 @@ class Tabela(TabelaBase):
 
     *ultimo nível de interface com o usuário*
     *A tabela é uma composição de circuitos*
-    
 
     Atributos
     ---------
-    _dic_input : dict
-        Dicionário que armazena os dados de entrada para o lançamento
-        de um dado circuito já validados pela classe circuito.
+    _base_df : pd.DataFrame
+        DataFrame que armazena os dados consolidados via circuito.
     
     Métodos
     -------
-    consolidate_data : dict
-    save_dataframe:
-    check_circuit:
-        NOTE:
-            * Circuito aberto: circuito que não foi fechado pois os dados ainda estão sendo preenchidos;
-            * Circuito aberto em desequilíbrio: circuito tentou ser fechado mas a condição de fechamento não foi respeitada;
-            * Circuito fechado em equilíbrio: circuito que foi fechado com a condição de equilíbrio respeitada;
-
-
-    
+    create_tabela(**kwargs) -> pd.DataFrame:
+        Consolida os dados inputados e validados em um pd.DataFrame.
     """
 
-    def __init__(self):
-        self._base_df = pd.DataFrame() 
+    def __init__(self, circuito: Circuito):
+        self._base_df = pd.DataFrame()
+        self._circuito = circuito
 
-
-    def consolidate_data(self, **kwargs) -> pd.DataFrame:
+    def create_tabela(self) -> pd.DataFrame:
         """
-        Consolida os Dados inputados e validados em um pd.DataFrame
-
-        Parâmetros:
-        ----------
-        **kwargs : dict
-            Dicionário com dados inputados e validados
+        Consolida os Dados inputados e validados em um pd.DataFrame.
 
         Retorna
         -------
         pd.DataFrame
-            Dict com a relação de dados preenchidos e/ou não preenchidos.
+            DataFrame com os dados consolidados.
         """
         columns_and_types = {
             "NomeAgenteVenda": str,
@@ -71,13 +57,23 @@ class Tabela(TabelaBase):
             "Valor": float,
             "NumeroDeAgentesVendaNoLancamento": int,
             "NumeroDeAgentesCompraNoLancamento": int,
-            "NumeroDoCircuito": int,
-            "NumeroDoLancamento": int,
+            "NumeroDoCircuito": str,
+            "NumeroDoLancamento": str,
             "SituacaoCircuito": str,
             "SituacaoLancamento": str,
         }
 
-        self._base_df = self._base_df(columns_and_types)
+        self._base_df = pd.DataFrame(columns=columns_and_types.keys())
 
-        for key, value in kwargs.items():
-            self._base_df[key] = value
+        for circuito_id, lancamentos in self._circuito._dict_circuito.items():
+            for lancamento in lancamentos.values():
+                # Create a new row for the DataFrame using the lancamento data
+                new_row = pd.DataFrame([lancamento])
+                # Append the new row to the base DataFrame
+                self._base_df = pd.concat([self._base_df, new_row], ignore_index=True)
+                
+        # Convert columns to specified data types
+        for col, col_type in columns_and_types.items():
+            self._base_df[col] = self._base_df[col].astype(col_type)
+                
+        return self._base_df
