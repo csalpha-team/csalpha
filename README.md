@@ -2,17 +2,12 @@
 
 
 
-1. Entrada de dados
+### Entrada de dados
 - inputs: lançamentos agrupados por circuito; 
 - outputs: estrutura matricial
-
-
 - A entrada de dados é o momento mais decisivo das contas alfa. Na lógica de entrada esta ao final o rigor com que todo sistema trabalha; 
-
 - Trata-se de um sistema centralizado. O output final é uma estrutura matricial. O sistema pretende organizar matrizes em diferentes niveis de agregacao a partir de matrizes semalhantes (mesma estrutura) para informações mais elementares. 
-
 - A entrada do dado deve ser feita de tal modo que para cada conjunto de dados elementares exista uma matriz estruturante sob controle. 
-
 - Estrutura do fluxo material de informações (descrito por uma matriz)
 
 
@@ -29,10 +24,9 @@
 		- 
 
 2. Venda:
-3. 
-O setor atacadista é sempre mediada por um ator. Na industria o atacado é o primeiro ponto. Já na agricultura, sempre tem um intermediador (atrevessador).
-- A metodologia capta essa diferenca com diferentes setores 
-- os setores refletem as formas de circulação do produto 
+
+- O setor atacadista é sempre mediada por um ator. Na industria o atacado é o primeiro ponto. Já na agricultura, sempre tem um intermediador (atrevessador).
+- A metodologia capta essa diferenca com diferentes setores; os setores refletem as formas de circulação dos produtos
 
 ### Criação da TBextensa
 - contém dados dos questionários; é a base para construção  das matrizes alfa;  gerada pelo next;
