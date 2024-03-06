@@ -4,14 +4,33 @@ import os
 class CircuitoBase(ABC):
     
     @abstractmethod
-    def consolidate_data(self, **kwargs):
+    def create_circuito(self, **kwargs):
         """
-        Consolida os Dados que foram inputados 
+        Cria um novo circuito com um ID único.
         
         """
         pass
 
+    @abstractmethod
+    def add_lancamento(self, **kwargs):
+        """
+        Adiciona um lançamento ao circuito especificado.
+        
+        """
+        pass
 
+    @abstractmethod
+    def remove_lancamento(self, **kwargs):
+        """
+        Adiciona um lançamento ao circuito especificado.
+        
+        """
+        pass
 
-    
-    
+    @abstractmethod
+    def get_lancamentos(self, id_circuito):
+        """
+        Retorna todos os lançamentos associados ao circuito especificado.
+        """
+        
+        pass
