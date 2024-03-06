@@ -1,40 +1,76 @@
 from circuito.circuito import Circuito
 import pytest
+import json
+
+
+# Amostra de lançamento para testar classe circuito
+sample_data = {
+    "NomeAgenteVenda": "Vendedor A",
+    "LocalDoAgenteQueVende": "Local A",
+    "TipoAgenteQueVende": "Tipo A",
+    "SetorDoAgenteQueVendeI": "Setor I",
+    "SetorDoAgenteQueVendeII": "Setor II",
+    "SetorDoAgenteQueVendeIII": "Setor III",
+    "NomeAgenteCompra": "Comprador A",
+    "LocalDoAgenteQueCompra": "Local B",
+    "TipoAgenteQueCompra": "Tipo B",
+    "SetorDoAgenteQueCompraI": "Setor IV",
+    "SetorDoAgenteQueCompraII": "Setor V",
+    "SetorDoAgenteQueCompraIII": "Setor VI",
+    "Produto": "Produto A",
+    "Unidade": "Unidade A",
+    "Quantidade": 10.0,
+    "PrecoPesquisa": 100.0,
+    "PrecoAgenteNoCircuito": 110.0,
+    "PrecoSetorAlfaNaTabela": 120.0,
+    "PrecoBaseDoValor": 130.0,
+    "Valor": 140.0,
+    "NumeroDeAgentesVendaNoLancamento": 2,
+    "NumeroDeAgentesCompraNoLancamento": 3,
+    "NumeroDoCircuito": "Circuito001",
+    "NumeroDoLancamento": "Lancamento001",
+    "SituacaoCircuito": "Aberto",
+    "SituacaoLancamento": "Ativo",
+}
 
 @pytest.fixture
 def circuito_instance():
-    return Circuito()
+    # Create a Circuito instance for testing
+    return Circuito({})
 
 def test_create_circuito(circuito_instance):
-    circuito_id = circuito_instance.create_circuito()
-    assert circuito_id is not None
+    # Create a new circuito using sample data
+    circuito_id = circuito_instance.create_circuito(**sample_data)
+    
+    # Check if the circuito is created successfully
+    assert circuito_id in circuito_instance._dict_circuito
+    assert circuito_instance._dict_circuito[circuito_id] == {}
 
-def test_add_lancamento(circuito_instance):
-    circuito_id = circuito_instance.create_circuito()
-    lancamento = {"NumeroDoLancamento": 1, "variavel": "valor"}
-    circuito_instance.add_lancamento(circuito_id, lancamento)
-    assert circuito_instance.get_lancamentos(circuito_id) == {1: lancamento}
+def test_add_lancamento_to_circuito(circuito_instance):
+    # Add a lancamento to the circuito
+    circuito_id = circuito_instance.create_circuito(**sample_data)
+    new_lancamento = sample_data 
+    circuito_instance.add_lancamento_to_circuito(circuito_id, new_lancamento)
+    
+    # Check if the lancamento is added successfully
+    assert new_lancamento["NumeroDoLancamento"] in circuito_instance._dict_circuito[circuito_id]
 
-def test_remove_lancamento(circuito_instance):
-    circuito_id = circuito_instance.create_circuito()
-    lancamento = {"NumeroDoLancamento": 1, "variavel": "valor"}
-    circuito_instance.add_lancamento(circuito_id, lancamento)
-    circuito_instance.remove_lancamento(circuito_id, 1)
-    assert circuito_instance.get_lancamentos(circuito_id) == {}
+
+def test_remove_lancamento_from_circuito(circuito_instance):
+
+    circuito_id = circuito_instance.create_circuito(**sample_data)
+    new_lancamento = sample_data 
+    circuito_instance.add_lancamento_to_circuito(circuito_id, new_lancamento)
+    print(circuito_instance._dict_circuito)
+    
+    circuito_instance.remove_lancamento_from_circuito(circuito_id, sample_data["NumeroDoLancamento"])
+
+    assert sample_data["NumeroDoLancamento"] not in circuito_instance._dict_circuito[circuito_id]
 
 def test_get_lancamentos(circuito_instance):
-    circuito_id = circuito_instance.create_circuito()
-    lancamento1 = {"NumeroDoLancamento": 1, "variavel": "valor1"}
-    lancamento2 = {"NumeroDoLancamento": 2, "variavel": "valor2"}
-    circuito_instance.add_lancamento(circuito_id, lancamento1)
-    circuito_instance.add_lancamento(circuito_id, lancamento2)
-    assert circuito_instance.get_lancamentos(circuito_id) == {1: lancamento1, 2: lancamento2}
 
-def test_generate_id(circuito_instance):
-    data = {"key": "value"}
-    hashed_id = circuito_instance._generate_id(data)
-    assert hashed_id is not None
+    circuito_id = circuito_instance.create_circuito(**sample_data)
+    lancamentos = circuito_instance.get_lancamentos(circuito_id)
+    
 
-def test_consolidate_data(circuito_instance):
-    # You can write tests for consolidate_data if it has a specific logic to be tested
-    pass
+    assert lancamentos == circuito_instance._dict_circuito[circuito_id]

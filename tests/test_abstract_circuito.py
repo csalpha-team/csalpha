@@ -15,10 +15,10 @@ class CircuitoWithAbstractMethodDefined(CircuitoBase):
     def create_circuito(self, **kwargs):
         pass
 
-    def add_lancamento(self, **kwargs):
+    def add_lancamento_to_circuito(self, **kwargs):
         pass
 
-    def remove_lancamento(self, **kwargs):
+    def remove_lancamento_from_circuito(self, **kwargs):
         pass
 
     def get_lancamentos(self, id_circuito):
@@ -31,14 +31,14 @@ def test_create_circuito_is_abstract():
     with pytest.raises(TypeError):
         CircuitoWithAbstractMethodNotDefined()
 
-def test_add_lancamento_is_abstract():
+def test_add_lancamento_to_circuito_is_abstract():
     """
     Test if add_lancamento method is abstract.
     """
     with pytest.raises(TypeError):
         CircuitoWithAbstractMethodNotDefined()
 
-def test_remove_lancamento_is_abstract():
+def test_remove_lancamento_from_circuito_is_abstract():
     """
     Test if remove_lancamento method is abstract.
     """

@@ -12,7 +12,7 @@ class CircuitoBase(ABC):
         pass
 
     @abstractmethod
-    def add_lancamento(self, **kwargs):
+    def add_lancamento_to_circuito(self, **kwargs):
         """
         Adiciona um lançamento ao circuito especificado.
         
@@ -20,7 +20,7 @@ class CircuitoBase(ABC):
         pass
 
     @abstractmethod
-    def remove_lancamento(self, **kwargs):
+    def remove_lancamento_from_circuito(self, **kwargs):
         """
         Adiciona um lançamento ao circuito especificado.
         
