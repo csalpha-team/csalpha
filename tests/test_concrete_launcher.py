@@ -2,6 +2,31 @@ from launcher.launcher import Launcher
 import warnings
 import pytest
 
+sample_data = {
+    "nomeAgenteVenda": "Vendedor A",
+    "localDoAgenteQueVende": "Local A",
+    "tipoAgenteQueVende": "Tipo A",
+    "setorDoAgenteQueVendeI": "Setor I",
+    "setorDoAgenteQueVendeII": "Setor II",
+    "setorDoAgenteQueVendeIII": "Setor III",
+    "nomeAgenteCompra": "Comprador A",
+    "localDoAgenteQueCompra": "Local B",
+    "tipoAgenteQueCompra": "Tipo B",
+    "setorDoAgenteQueCompraI": "Setor IV",
+    "setorDoAgenteQueCompraII": "Setor V",
+    "setorDoAgenteQueCompraIII": "Setor VI",
+    "produto": "Produto A",
+    "unidade": "Unidade A",
+    "quantidade": 10.0,
+    "precoPesquisa": 100.0,
+    "precoAgenteNoCircuito": 110.0,
+    "precoSetorAlfaNaTabela": 120.0,
+    "precoBaseDoValor": 130.0,
+    "valor": 140.0,
+    "numeroDeAgentesVendaNoLancamento": 2,
+    "numeroDeAgentesCompraNoLancamento": 3,
+}
+
 
 def test_if_input_data_and_check_data_is_working():
     launcher = Launcher()
@@ -28,6 +53,17 @@ def test_if_raise_warning_if_pass_a_key_not_in_the_dictionary():
     with pytest.warns(UserWarning):
         launcher.input_data(NomeAgenteVenda="testA", NomeAgenteVendaII="testB")
         assert launcher.check_data()["nomeAgenteVenda"] == "testA"
+
+
+def test_if_id_is_inputed():
+    launcher = Launcher()
+    assert isinstance(launcher.id_lancamento)
+
+def check_if_sample_data_is_inputed_correctly():
+    launcher = Launcher()
+    launcher.input_data(**sample_data)
+    assert launcher.check_data() == sample_data
+
 
 
 # Run the tests
