@@ -1,5 +1,8 @@
 from .abstract_launcher import LauncherBase
 import warnings
+from typing import Any
+import time
+import hashlib
 
 class Launcher(LauncherBase):
     """
@@ -30,7 +33,9 @@ class Launcher(LauncherBase):
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, id_launcher='auto') -> None:
+        self.id_lancamento = self._generate_launcher_id(id_launcher=id_launcher) # Pensar em como gerar automaticamente esse id
+
         self._dic_input = {
             "nomeAgenteVenda": None,
             "localDoAgenteQueVende": None,
@@ -54,10 +59,6 @@ class Launcher(LauncherBase):
             "valor": None,
             "numeroDeAgentesVendaNoLancamento": None,
             "numeroDeAgentesCompraNoLancamento": None,
-            "idCircuito": None,
-            "idLancamento": None,
-            "completoCircuito": None,
-
         }
     
     def input_data(self, **kwargs) -> None:
@@ -120,3 +121,25 @@ class Launcher(LauncherBase):
             Dict com a relação de dados preenchidos e/ou não preenchidos.
         """
         return self._dic_input
+    
+    def _generate_launcher_id(self, id_launcher: Any='auto') -> str:
+        """
+        Gera um ID único para o lançamento.
+
+        Parâmetros
+        ----------
+        id_launcher : Any
+            ID do lançamento. Se 'auto', um ID único será gerado automaticamente.
+
+        Retorna
+        -------
+        str
+            ID único do lançamento.
+        """
+        if id_launcher == 'auto':
+            seed = str(time.time()) + "1ePcWuuN"
+            id_ = hashlib.sha1(seed.encode()).hexdigest()[:10]
+        else:
+            id_ = str(seed)
+
+        return id_
