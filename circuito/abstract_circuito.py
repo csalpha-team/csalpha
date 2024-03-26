@@ -4,7 +4,7 @@ import os
 class CircuitoBase(ABC):
     
     @abstractmethod
-    def create_circuito(self, **kwargs):
+    def _create_circuito(self):
         """
         Cria um novo circuito com um ID único.
         
@@ -12,7 +12,7 @@ class CircuitoBase(ABC):
         pass
 
     @abstractmethod
-    def add_lancamento_to_circuito(self, **kwargs):
+    def add_lancamento_to_circuito(self):
         """
         Adiciona um lançamento ao circuito especificado.
         
@@ -20,7 +20,7 @@ class CircuitoBase(ABC):
         pass
 
     @abstractmethod
-    def remove_lancamento_from_circuito(self, **kwargs):
+    def remove_lancamento_from_circuito(self):
         """
         Adiciona um lançamento ao circuito especificado.
         
@@ -28,7 +28,7 @@ class CircuitoBase(ABC):
         pass
 
     @abstractmethod
-    def get_lancamentos(self, id_circuito):
+    def get_lancamentos(self):
         """
         Retorna todos os lançamentos associados ao circuito especificado.
         """
