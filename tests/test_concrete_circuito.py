@@ -1,76 +1,154 @@
 from circuito.circuito import Circuito
+from launcher.launcher import Launcher
 import pytest
 import json
 
 
 # Amostra de lançamento para testar classe circuito
-sample_data = {
-    "NomeAgenteVenda": "Vendedor A",
-    "LocalDoAgenteQueVende": "Local A",
-    "TipoAgenteQueVende": "Tipo A",
-    "SetorDoAgenteQueVendeI": "Setor I",
-    "SetorDoAgenteQueVendeII": "Setor II",
-    "SetorDoAgenteQueVendeIII": "Setor III",
-    "NomeAgenteCompra": "Comprador A",
-    "LocalDoAgenteQueCompra": "Local B",
-    "TipoAgenteQueCompra": "Tipo B",
-    "SetorDoAgenteQueCompraI": "Setor IV",
-    "SetorDoAgenteQueCompraII": "Setor V",
-    "SetorDoAgenteQueCompraIII": "Setor VI",
-    "Produto": "Produto A",
-    "Unidade": "Unidade A",
-    "Quantidade": 10.0,
-    "PrecoPesquisa": 100.0,
-    "PrecoAgenteNoCircuito": 110.0,
-    "PrecoSetorAlfaNaTabela": 120.0,
-    "PrecoBaseDoValor": 130.0,
-    "Valor": 140.0,
-    "NumeroDeAgentesVendaNoLancamento": 2,
-    "NumeroDeAgentesCompraNoLancamento": 3,
-    "NumeroDoCircuito": "Circuito001",
-    "NumeroDoLancamento": "Lancamento001",
-    "SituacaoCircuito": "Aberto",
-    "SituacaoLancamento": "Ativo",
+sample_data1 = {
+    "nomeAgenteVenda": "Vendedor A",
+    "localDoAgenteQueVende": "Local A",
+    "tipoAgenteQueVende": "Tipo A",
+    "setorDoAgenteQueVendeI": "Setor I",
+    "setorDoAgenteQueVendeII": "Setor II",
+    "setorDoAgenteQueVendeIII": "Setor III",
+    "nomeAgenteCompra": "Comprador A",
+    "localDoAgenteQueCompra": "Local B",
+    "tipoAgenteQueCompra": "Tipo B",
+    "setorDoAgenteQueCompraI": "Setor IV",
+    "setorDoAgenteQueCompraII": "Setor V",
+    "setorDoAgenteQueCompraIII": "Setor VI",
+    "produto": "Produto A",
+    "unidade": "Unidade A",
+    "quantidade": 10.0,
+    "precoPesquisa": 100.0,
+    "precoAgenteNoCircuito": 110.0,
+    "precoSetorAlfaNaTabela": 120.0,
+    "precoBaseDoValor": 130.0,
+    "valor": 140.0,
+    "numeroDeAgentesVendaNoLancamento": 2,
+    "numeroDeAgentesCompraNoLancamento": 3,
+
+}
+# Amostra de lançamento para testar classe circuito
+sample_data2 = {
+    "nomeAgenteVenda": "Vendedor B",
+    "localDoAgenteQueVende": "Local B",
+    "tipoAgenteQueVende": "Tipo B",
+    "setorDoAgenteQueVendeI": "Setor I",
+    "setorDoAgenteQueVendeII": "Setor II",
+    "setorDoAgenteQueVendeIII": "Setor III",
+    "nomeAgenteCompra": "Comprador B",
+    "localDoAgenteQueCompra": "Local C",
+    "tipoAgenteQueCompra": "Tipo C",
+    "setorDoAgenteQueCompraI": "Setor IV",
+    "setorDoAgenteQueCompraII": "Setor V",
+    "setorDoAgenteQueCompraIII": "Setor VI",
+    "produto": "Produto A",
+    "unidade": "Unidade A",
+    "quantidade": 10.0,
+    "precoPesquisa": 130.0,
+    "precoAgenteNoCircuito": 140.0,
+    "precoSetorAlfaNaTabela": 150.0,
+    "precoBaseDoValor": 120.0,
+    "valor": 180.0,
+    "numeroDeAgentesVendaNoLancamento": 2,
+    "numeroDeAgentesCompraNoLancamento": 3,
+
 }
 
-@pytest.fixture
-def circuito_instance():
-    # Create a Circuito instance for testing
-    return Circuito({})
+sample_data3 = {
+    "nomeAgenteVenda": "Vendedor C",
+    "localDoAgenteQueVende": "Local C",
+    "tipoAgenteQueVende": "Tipo C",
+    "setorDoAgenteQueVendeI": "Setor I",
+    "setorDoAgenteQueVendeII": "Setor II",
+    "setorDoAgenteQueVendeIII": "Setor III",
+    "nomeAgenteCompra": "Comprador C",
+    "localDoAgenteQueCompra": "Local B",
+    "tipoAgenteQueCompra": "Tipo B",
+    "setorDoAgenteQueCompraI": "Setor IV",
+    "setorDoAgenteQueCompraII": "Setor V",
+    "setorDoAgenteQueCompraIII": "Setor VI",
+    "produto": "Produto A",
+    "unidade": "Unidade A",
+    "quantidade": None,
+    "precoPesquisa": None,
+    "precoAgenteNoCircuito": None,
+    "precoSetorAlfaNaTabela": None,
+    "precoBaseDoValor": None,
+    "valor": None,
+    "numeroDeAgentesVendaNoLancamento": 2,
+    "numeroDeAgentesCompraNoLancamento": 3,
+}
 
-def test_create_circuito(circuito_instance):
+# @pytest.fixture
+# def circuito_instance():
+#     # Create a Circuito instance for testing
+#     return Circuito()
+
+def test_create_circuito():
+    # Instanciando Circuito
+    circuito = Circuito()
+
     # Create a new circuito using sample data
-    circuito_id = circuito_instance.create_circuito(**sample_data)
+    circuito_id = circuito.id_circuito
     
     # Check if the circuito is created successfully
-    assert circuito_id in circuito_instance._dict_circuito
-    assert circuito_instance._dict_circuito[circuito_id] == {}
-
-def test_add_lancamento_to_circuito(circuito_instance):
-    # Add a lancamento to the circuito
-    circuito_id = circuito_instance.create_circuito(**sample_data)
-    new_lancamento = sample_data 
-    circuito_instance.add_lancamento_to_circuito(circuito_id, new_lancamento)
-    
-    # Check if the lancamento is added successfully
-    assert new_lancamento["NumeroDoLancamento"] in circuito_instance._dict_circuito[circuito_id]
+    assert isinstance(circuito_id, str)
+    assert circuito.get_lancamentos()[circuito_id] == {}
 
 
-def test_remove_lancamento_from_circuito(circuito_instance):
+def test_if_add_lancamento_to_circuito_is_working():
+    # Instanciando Circuito
+    circuito = Circuito()
 
-    circuito_id = circuito_instance.create_circuito(**sample_data)
-    new_lancamento = sample_data 
-    circuito_instance.add_lancamento_to_circuito(circuito_id, new_lancamento)
-    print(circuito_instance._dict_circuito)
-    
-    circuito_instance.remove_lancamento_from_circuito(circuito_id, sample_data["NumeroDoLancamento"])
+    # Instanciando o Lançamento
+    launcher = Launcher()
 
-    assert sample_data["NumeroDoLancamento"] not in circuito_instance._dict_circuito[circuito_id]
+    launcher.input_data(**sample_data1)
 
-def test_get_lancamentos(circuito_instance):
+    circuito.add_lancamento_to_circuito(launcher)
 
-    circuito_id = circuito_instance.create_circuito(**sample_data)
-    lancamentos = circuito_instance.get_lancamentos(circuito_id)
-    
+    assert len(circuito.get_lancamentos()[circuito.id_circuito][launcher.id_lancamento].keys())==len(sample_data1.keys())
 
-    assert lancamentos == circuito_instance._dict_circuito[circuito_id]
+    assert isinstance(circuito.get_lancamentos(), dict)
+
+
+
+def test_remove_lancamento_from_circuito():
+    circuito = Circuito()
+
+    launcher1 = Launcher()
+    launcher1.input_data(**sample_data1)
+
+    circuito.add_lancamento_to_circuito(launcher1)
+
+    assert circuito.get_lancamentos()[circuito.id_circuito][launcher1.id_lancamento] == launcher1.check_data()
+
+    circuito.remove_lancamento_from_circuito(launcher1)
+
+    with pytest.raises(KeyError):
+        assert circuito.get_lancamentos()[circuito.id_circuito][launcher1.id_lancamento]
+
+def test_auto_fill_na_is_working():
+    circuito = Circuito()
+
+    launcher1 = Launcher()
+    launcher1.input_data(**sample_data1)
+    circuito.add_lancamento_to_circuito(launcher1)
+
+    launcher2 = Launcher()
+    launcher2.input_data(**sample_data2)
+    circuito.add_lancamento_to_circuito(launcher2)
+
+    launcher3 = Launcher()
+    launcher3.input_data(**sample_data3)
+    circuito.add_lancamento_to_circuito(launcher3)
+
+    circuito._dataframe_circuito.isna().sum().sum()>0
+
+    circuito.circuito_fechado(True)
+
+
+    assert circuito._dataframe_circuito.isna().sum().sum()==0
