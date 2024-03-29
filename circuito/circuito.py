@@ -102,7 +102,7 @@ class Circuito(CircuitoBase):
                     self._dataframe_circuito[col] = self._dataframe_circuito[col].fillna(np.nan)
                     warnings.WarningMessage(f'Um erro aconteceu ao preencher os dados faltantes da coluna {col}: {e}')
 
-        self._dict_circuito = self._dataframe_circuito.set_index('idLancamento').to_dict(orient='index')
+        self._dict_circuito = self._dataframe_circuito.set_index('id_lancamento').to_dict(orient='index')
 
 
 
@@ -134,11 +134,11 @@ class Circuito(CircuitoBase):
         lancamento : dict
             Dicionário representando os dados do lançamento a ser adicionado.
         """
-        id_lan = lancamento.idLancamento
+        id_lan = lancamento.id_lancamento
         dic_lan = lancamento.check_data()
         self._dict_circuito[id_lan] = dic_lan
 
-        self._dataframe_circuito = pd.DataFrame(self._dict_circuito).T.reset_index().rename(columns={'index': 'idLancamento'})
+        self._dataframe_circuito = pd.DataFrame(self._dict_circuito).T.reset_index().rename(columns={'index': 'id_lancamento'})
 
 
 
@@ -154,14 +154,14 @@ class Circuito(CircuitoBase):
         """
 
         if isinstance(id_lancamento, LauncherBase):
-            id_lancamento = id_lancamento.idLancamento
+            id_lancamento = id_lancamento.id_lancamento
 
         if id_lancamento in self._dict_circuito.keys():
             del self._dict_circuito[id_lancamento]
         else:
             raise KeyError(f"Lancamento with ID {id_lancamento} does not exist in circuito.")
         
-        self._dataframe_circuito = pd.DataFrame(self._dict_circuito).T.reset_index().rename(columns={'index': 'idLancamento'})
+        self._dataframe_circuito = pd.DataFrame(self._dict_circuito).T.reset_index().rename(columns={'index': 'id_lancamento'})
 
 
     def get_lancamentos(self) -> dict:
