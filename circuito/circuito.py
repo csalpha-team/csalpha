@@ -179,6 +179,17 @@ class Circuito(CircuitoBase):
             Dicionário contendo todos os lançamentos associados ao circuito especificado.
         """
         return {self.id_circuito: self._dict_circuito}
+    
+
+    def show_dataframe_circuito(self):
+        try:
+            self._dataframe_circuito['id_circuito']
+        except KeyError:
+            self._dataframe_circuito['id_circuito'] = self.id_circuito
+        
+        return self._dataframe_circuito[['id_circuito']+self._dataframe_circuito.drop(columns='id_circuito').columns.tolist()]
+        
+
 
     def _generate_circuito_id(self, id_circuito: Any = 'auto') -> str:
         """
