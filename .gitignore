@@ -98,5 +98,8 @@ output/
 python_boilerplate/
 cookiecutter-pypackage-env/
 
+# Python Notebooks
+*.ipynb
+
 # IDE settings
 .vscode/
