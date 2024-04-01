@@ -1,6 +1,10 @@
 from tabela.abstract_tabela import TabelaBase
 from circuito.circuito import Circuito
+from circuito.abstract_circuito import CircuitoBase
 import pandas as pd
+from typing import Any
+import hashlib
+import time
 
 
 class Tabela(TabelaBase):
@@ -21,60 +25,75 @@ class Tabela(TabelaBase):
         Consolida os dados inputados e validados em um pd.DataFrame.
     """
 
-    def __init__(self, circuito: Circuito):
-        self._base_df = pd.DataFrame()
-        self._circuito = circuito
+    def __init__(self):
+        self.id_table = self._generate_id_table()
 
-    def create_tabela(self) -> pd.DataFrame:
+        self._dict_table = {}
+
+        self._dataframe_table = pd.DataFrame()
+
+    def insert_circuit(self, circuit: Circuito):
+        self._dict_table.update({circuit.id_circuito: circuit})
+
+
+    def remove_circuit(self, circuit_remove):
+        if isinstance(circuit_remove, Circuito):
+            id_circuito = circuit_remove.id_circuito
+        else:
+            id_circuito = circuit_remove
+
+        try:
+            self._dict_table.pop(id_circuito)
+        
+        except KeyError as e:
+            print("Circuito não encontrado.", e)
+
+
+    def show_table(self, format='standard'):
         """
-        Consolida os Dados inputados e validados em um pd.DataFrame.
+        format must be or pandas or standard
+        """
+        if format=='standard':
+            _dic_show = {}
+            for k, v in self._dict_table.items():
+                _dic_show.update({k: v.get_lancamentos()})
+            return _dic_show
+
+        elif format=='pandas':
+            app_list = []
+
+            for k, v in self._dict_table.items():
+                if v.is_closed():
+                    app_list.append(v.show_dataframe_circuito())
+                else:
+                    v.circuito_fechado(True)
+                    app_list.append(v.show_dataframe_circuito())
+
+            return pd.concat(app_list)
+
+        
+
+
+    def _generate_id_table(self, id_tabela: Any = 'auto') -> str:
+        """
+        Gera um ID único para o tabela usando SHA-1.
+
+        Parâmetros
+        ----------
+        id_tabela : Any
+            Define o id_tabela. Se "auto", o id será gerado a partir
+            de hash SHA-1. Por padrão, "auto".
 
         Retorna
         -------
-        pd.DataFrame
-            DataFrame com os dados consolidados.
+        str
+            ID único gerado para o circuito.
         """
-        columns_and_types = {
-            "NomeAgenteVenda": str,
-            "LocalDoAgenteQueVende": str,
-            "TipoAgenteQueVende": str,
-            "SetorDoAgenteQueVendeI": str,
-            "SetorDoAgenteQueVendeII": str,
-            "SetorDoAgenteQueVendeIII": str,
-            "NomeAgenteCompra": str,
-            "LocalDoAgenteQueCompra": str,
-            "TipoAgenteQueCompra": str,
-            "SetorDoAgenteQueCompraI": str,
-            "SetorDoAgenteQueCompraII": str,
-            "SetorDoAgenteQueCompraIII": str,
-            "Produto": str,
-            "Unidade": str,
-            "Quantidade": float,
-            "PrecoPesquisa": float,
-            "PrecoAgenteNoCircuito": float,
-            "PrecoSetorAlfaNaTabela": float,
-            "PrecoBaseDoValor": float,
-            "Valor": float,
-            "NumeroDeAgentesVendaNoLancamento": int,
-            "NumeroDeAgentesCompraNoLancamento": int,
-            "NumeroDoCircuito": str,
-            "NumeroDoLancamento": str,
-            "SituacaoCircuito": str,
-            "SituacaoLancamento": str,
-        }
-
-        self._base_df = pd.DataFrame(columns=columns_and_types.keys())
-
-        for circuito_id, lancamentos in self._circuito._dict_circuito.items():
-            for lancamento in lancamentos.values():
-                # Cria nova linha com lançamento
-                new_row = pd.DataFrame([lancamento])
-                # Adiciona a linha para o DF _base_df
-                self._base_df = pd.concat([self._base_df, new_row], ignore_index=True)
-                
-        # Converte tipos
-        #TODO: adicionar verificação mais detalhada e segura
-        for col, col_type in columns_and_types.items():
-            self._base_df[col] = self._base_df[col].astype(col_type)
-                
-        return self._base_df
+        if id_tabela == 'auto':
+            seed = str(time.time()) + "36NOYMrLnmlextec"
+            id_ = hashlib.sha1(seed.encode()).hexdigest()[:10]
+        else: 
+            id_ = str(seed)
+        
+        
+        return id_

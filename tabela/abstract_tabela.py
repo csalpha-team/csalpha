@@ -4,6 +4,13 @@ import os
 class TabelaBase(ABC):
 
     @abstractmethod
-    def create_tabela(self):
+    def insert_circuit(self):
+        pass
 
+    @abstractmethod
+    def remove_circuit(self):
+        pass
+    
+    @abstractmethod
+    def show_table(self):
         pass

@@ -1,7 +1,11 @@
 from .abstract_circuito import CircuitoBase
+from launcher.abstract_launcher import LauncherBase
 import warnings
 import hashlib
-
+import time
+from typing import Any
+import numpy as np
+import pandas as pd
 
 class Circuito(CircuitoBase):
     """
@@ -32,7 +36,7 @@ class Circuito(CircuitoBase):
 
     Métodos
     -------
-    create_circuito(**kwargs)
+    create_circuito(**kwargs) # Adiciona o id via timestamp de instanciamento do circuito
         Cria um novo circuito com um ID único.
 
     add_lancamento_to_circuito(id_circuito, lancamento)
@@ -45,7 +49,7 @@ class Circuito(CircuitoBase):
         Retorna todos os lançamentos associados ao circuito especificado.
     """
 
-    def __init__(self, launcher_dict=None):
+    def __init__(self, id_circuito = 'auto'):
         """
         Inicializa a classe Circuito.
 
@@ -54,11 +58,55 @@ class Circuito(CircuitoBase):
         launcher_dict : dict, opcional
             Dicionário representando o lançamento, por padrão None.
         """
-        if launcher_dict is None:
-            launcher_dict = {}
-        self._dict_circuito = launcher_dict
+        self.id_circuito = self._create_circuito(id_circuito)
 
-    def create_circuito(self, **kwargs):
+        self._sobrevenda = 0.0
+        self._sobrecompra = 0.0
+
+        self._dict_circuito = {}
+
+        self._dataframe_circuito = pd.DataFrame()
+
+        self.circuito_fechado(False)
+
+        
+    def is_closed(self):
+        return self._circuito_fechado
+
+
+    def circuito_fechado(self, value):
+        # Quando setado para False, calcular sobrevenda, sobrecompra
+        # E fazer os processos de preenchimento dos dados dos lançamentos
+        # Presentes neste circuito
+        if value:
+            self.fill_strategy()
+            self._sobrevenda = np.mean([list(self._dict_circuito.values())[i]['quantidade'] for i in range(len(self._dict_circuito.values()))])
+            self._sobrecompra = np.mean([list(self._dict_circuito.values())[i]['quantidade'] for i in range(len(self._dict_circuito.values()))])
+            self._circuito_fechado = value
+
+        self._circuito_fechado = value
+        self._dataframe_circuito['sobrevenda'] = self._sobrevenda
+        self._dataframe_circuito['sobrecompra'] = self._sobrevenda
+        self._dataframe_circuito['circuitoFechado'] = self._circuito_fechado
+
+    def fill_strategy(self):
+        """
+        preenche os dados de acordo com uma estratégia pré-definida
+        """
+        for col in self._dataframe_circuito.fillna(-1).select_dtypes(include=np.number).columns:
+            if self._dataframe_circuito[col].isnull().sum() > 0:
+                try:
+                    self._dataframe_circuito[col] = self._dataframe_circuito[col].fillna(self._dataframe_circuito[col].mean())
+                
+                except Exception as e:
+                    self._dataframe_circuito[col] = self._dataframe_circuito[col].fillna(np.nan)
+                    warnings.WarningMessage(f'Um erro aconteceu ao preencher os dados faltantes da coluna {col}: {e}')
+
+        self._dict_circuito = self._dataframe_circuito.set_index('id_lancamento').to_dict(orient='index')
+
+
+
+    def _create_circuito(self, id_circuito='auto'):
         """
         Cria um novo circuito com um ID único.
 
@@ -72,11 +120,10 @@ class Circuito(CircuitoBase):
         str
             ID único do circuito criado.
         """
-        id_circuito = self._generate_circuito_id(kwargs)
-        self._dict_circuito[id_circuito] = {}
-        return id_circuito
+        self.id_circuito = self._generate_circuito_id(id_circuito=id_circuito)
+        return self.id_circuito
 
-    def add_lancamento_to_circuito(self, id_circuito: str, lancamento: dict):
+    def add_lancamento_to_circuito(self, lancamento: LauncherBase):
         """
         Adiciona um lançamento ao circuito especificado.
 
@@ -87,31 +134,37 @@ class Circuito(CircuitoBase):
         lancamento : dict
             Dicionário representando os dados do lançamento a ser adicionado.
         """
-        if id_circuito in self._dict_circuito:
-            self._dict_circuito[id_circuito][lancamento['NumeroDoLancamento']] = lancamento
-        else:
-            raise KeyError(f"Circuito with ID {id_circuito} does not exist.")
+        id_lan = lancamento.id_lancamento
+        dic_lan = lancamento.check_data()
+        self._dict_circuito[id_lan] = dic_lan
 
-    def remove_lancamento_from_circuito(self, id_circuito: str, id_lancamento: str):
+        self._dataframe_circuito = pd.DataFrame(self._dict_circuito).T.reset_index().rename(columns={'index': 'id_lancamento'})
+
+
+
+    def remove_lancamento_from_circuito(self, id_lancamento: str or LauncherBase):
         """
         Remove um lançamento do circuito especificado.
 
         Parâmetros
         ----------
-        id_circuito : str
-            ID do circuito do qual o lançamento será removido.
         id_lancamento : str
-            ID do lançamento a ser removido.
+            ID do lançamento a ser removido. Também é possível passar um objeto
+            do tipo LauncherBase, que será convertido para o ID correspondente.
         """
-        if id_circuito in self._dict_circuito:
-            if id_lancamento in self._dict_circuito[id_circuito]:
-                del self._dict_circuito[id_circuito][id_lancamento]
-            else:
-                raise KeyError(f"Lancamento with ID {id_lancamento} does not exist in circuito {id_circuito}.")
-        else:
-            raise KeyError(f"Circuito with ID {id_circuito} does not exist.")
 
-    def get_lancamentos(self, id_circuito: str) -> dict:
+        if isinstance(id_lancamento, LauncherBase):
+            id_lancamento = id_lancamento.id_lancamento
+
+        if id_lancamento in self._dict_circuito.keys():
+            del self._dict_circuito[id_lancamento]
+        else:
+            raise KeyError(f"Lancamento with ID {id_lancamento} does not exist in circuito.")
+        
+        self._dataframe_circuito = pd.DataFrame(self._dict_circuito).T.reset_index().rename(columns={'index': 'id_lancamento'})
+
+
+    def get_lancamentos(self) -> dict:
         """
         Retorna todos os lançamentos associados ao circuito especificado.
 
@@ -125,35 +178,49 @@ class Circuito(CircuitoBase):
         dict
             Dicionário contendo todos os lançamentos associados ao circuito especificado.
         """
-        if id_circuito in self._dict_circuito:
-            return self._dict_circuito[id_circuito]
-        else:
-            raise KeyError(f"Circuito with ID {id_circuito} does not exist.")
+        return {self.id_circuito: self._dict_circuito}
+    
 
-    def _generate_circuito_id(self, data: dict) -> str:
+    def show_dataframe_circuito(self):
+        try:
+            self._dataframe_circuito['id_circuito']
+        except KeyError:
+            self._dataframe_circuito['id_circuito'] = self.id_circuito
+        
+        return self._dataframe_circuito[['id_circuito']+self._dataframe_circuito.drop(columns='id_circuito').columns.tolist()]
+        
+
+
+    def _generate_circuito_id(self, id_circuito: Any = 'auto') -> str:
         """
         Gera um ID único para o circuito usando SHA-1.
 
         Parâmetros
         ----------
-        data : dict
-            Dicionário com os dados do circuito.
+        id_circuito : Any
+            Define o id_circuito. Se "auto", o id será gerado a partir
+            de hash SHA-1. Por padrão, "auto".
 
         Retorna
         -------
         str
             ID único gerado para o circuito.
         """
-        data_str = str(data)
-        hashed = hashlib.sha1(data_str.encode()).hexdigest()
-        return hashed
+        if id_circuito == 'auto':
+            seed = str(time.time()) + "1ct3HLZn"
+            id_ = hashlib.sha1(seed.encode()).hexdigest()[:10]
+        else: 
+            id_ = str(seed)
+        
+        
+        return id_
 
 
     
         
         
-            
-        
+# if __name__ == '__main__':
+
         
         
         

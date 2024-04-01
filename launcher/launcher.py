@@ -1,5 +1,8 @@
 from .abstract_launcher import LauncherBase
 import warnings
+from typing import Any
+import time
+import hashlib
 
 class Launcher(LauncherBase):
     """
@@ -30,34 +33,32 @@ class Launcher(LauncherBase):
 
     """
 
-    def __init__(self) -> None:
+    def __init__(self, id_launcher='auto') -> None:
+        self.id_lancamento = self._generate_launcher_id(id_launcher=id_launcher) # Pensar em como gerar automaticamente esse id
+
         self._dic_input = {
-            "NomeAgenteVenda": None,
-            "LocalDoAgenteQueVende": None,
-            "TipoAgenteQueVende": None,
-            "SetorDoAgenteQueVendeI": None,
-            "SetorDoAgenteQueVendeII": None,
-            "SetorDoAgenteQueVendeIII": None,
-            "NomeAgenteCompra": None,
-            "LocalDoAgenteQueCompra": None,
-            "TipoAgenteQueCompra": None,
-            "SetorDoAgenteQueCompraI": None,
-            "SetorDoAgenteQueCompraII": None,
-            "SetorDoAgenteQueCompraIII": None,
-            "Produto": None,
-            "Unidade": None,
-            "Quantidade": None,
-            "PrecoPesquisa": None,
-            "PrecoAgenteNoCircuito": None,
-            "PrecoSetorAlfaNaTabela": None,
-            "PrecoBaseDoValor": None,
-            "Valor": None,
-            "NumeroDeAgentesVendaNoLancamento": None,
-            "NumeroDeAgentesCompraNoLancamento": None,
-            "NumeroDoCircuito": None,
-            "NumeroDoLancamento": None,
-            "SituacaoCircuito": None,
-            "SituacaoLancamento": None,
+            "nomeAgenteVenda": None,
+            "localDoAgenteQueVende": None,
+            "tipoAgenteQueVende": None,
+            "setorDoAgenteQueVendeI": None,
+            "setorDoAgenteQueVendeII": None,
+            "setorDoAgenteQueVendeIII": None,
+            "nomeAgenteCompra": None,
+            "localDoAgenteQueCompra": None,
+            "tipoAgenteQueCompra": None,
+            "setorDoAgenteQueCompraI": None,
+            "setorDoAgenteQueCompraII": None,
+            "setorDoAgenteQueCompraIII": None,
+            "produto": None,
+            "unidade": None,
+            "quantidade": None,
+            "precoPesquisa": None,
+            "precoAgenteNoCircuito": None,
+            "precoSetorAlfaNaTabela": None,
+            "precoBaseDoValor": None,
+            "valor": None,
+            "numeroDeAgentesVendaNoLancamento": None,
+            "numeroDeAgentesCompraNoLancamento": None,
         }
     
     def input_data(self, **kwargs) -> None:
@@ -120,3 +121,25 @@ class Launcher(LauncherBase):
             Dict com a relação de dados preenchidos e/ou não preenchidos.
         """
         return self._dic_input
+    
+    def _generate_launcher_id(self, id_launcher: Any='auto') -> str:
+        """
+        Gera um ID único para o lançamento.
+
+        Parâmetros
+        ----------
+        id_launcher : Any
+            ID do lançamento. Se 'auto', um ID único será gerado automaticamente.
+
+        Retorna
+        -------
+        str
+            ID único do lançamento.
+        """
+        if id_launcher == 'auto':
+            seed = str(time.time()) + "1ePcWuuN"
+            id_ = hashlib.sha1(seed.encode()).hexdigest()[:10]
+        else:
+            id_ = str(seed)
+
+        return id_
