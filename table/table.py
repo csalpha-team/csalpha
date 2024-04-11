@@ -1,4 +1,5 @@
-from tabela.abstract_tabela import TabelaBase
+
+from table.abstract_table import TableBase
 from circuito.circuito import Circuito
 from circuito.abstract_circuito import CircuitoBase
 import pandas as pd
@@ -7,36 +8,36 @@ import hashlib
 import time
 
 
-class Tabela(TabelaBase):
+class Table(TableBase):
     """
-    Classe que apresenta os dados consolidados via circuito
+    Class that presents consolidated data via circuit
 
-    *ultimo nível de interface com o usuário*
-    *A tabela é uma composição de circuitos*
+    *last level of interface with the user*
+    *The table is a composition of circuits*
 
-    Atributos
-    ---------
+    Attributes
+    ----------
     _base_df : pd.DataFrame
-        DataFrame que armazena os dados consolidados via circuito.
+        DataFrame that stores the consolidated data via circuit.
     
-    Métodos
+    Methods
     -------
-    create_tabela(**kwargs) -> pd.DataFrame:
-        Consolida os dados inputados e validados em um pd.DataFrame.
+    create_table(**kwargs) -> pd.DataFrame:
+        Consolidates the input and validated data into a pd.DataFrame.
     """
 
     def __init__(self):
-        self.id_table = self._generate_id_table()
+        self.id_table: str = self._generate_id_table()
 
-        self._dict_table = {}
+        self._dict_table: dict = {}
 
-        self._dataframe_table = pd.DataFrame()
+        self._dataframe_table: pd.DataFrame = pd.DataFrame()
 
-    def insert_circuit(self, circuit: Circuito):
+    def insert_circuit(self, circuit: Circuito) -> None:
         self._dict_table.update({circuit.id_circuito: circuit})
 
 
-    def remove_circuit(self, circuit_remove):
+    def remove_circuit(self, circuit_remove: Any) -> None:
         if isinstance(circuit_remove, Circuito):
             id_circuito = circuit_remove.id_circuito
         else:
@@ -46,12 +47,12 @@ class Tabela(TabelaBase):
             self._dict_table.pop(id_circuito)
         
         except KeyError as e:
-            print("Circuito não encontrado.", e)
+            print("Circuit not found.", e)
 
 
-    def show_table(self, format='standard'):
+    def show_table(self, format: str = 'standard') -> Any:
         """
-        format must be or pandas or standard
+        format must be either 'pandas' or 'standard'
         """
         if format=='standard':
             _dic_show = {}
@@ -76,18 +77,18 @@ class Tabela(TabelaBase):
 
     def _generate_id_table(self, id_tabela: Any = 'auto') -> str:
         """
-        Gera um ID único para o tabela usando SHA-1.
+        Generates a unique ID for the table using SHA-1.
 
-        Parâmetros
+        Parameters
         ----------
         id_tabela : Any
-            Define o id_tabela. Se "auto", o id será gerado a partir
-            de hash SHA-1. Por padrão, "auto".
+            Defines the table ID. If "auto", the ID will be generated
+            from SHA-1 hash. By default, "auto".
 
-        Retorna
+        Returns
         -------
         str
-            ID único gerado para o circuito.
+            Unique ID generated for the table.
         """
         if id_tabela == 'auto':
             seed = str(time.time()) + "36NOYMrLnmlextec"
