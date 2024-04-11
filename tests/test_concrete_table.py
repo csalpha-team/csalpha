@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from circuito.circuito import Circuito
+from circuit.circuit import Circuito
 from launcher.launcher import Launcher
 from table.table import Table
 import unicodedata

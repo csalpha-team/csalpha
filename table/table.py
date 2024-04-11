@@ -1,7 +1,7 @@
 
 from table.abstract_table import TableBase
-from circuito.circuito import Circuito
-from circuito.abstract_circuito import CircuitoBase
+from circuit.circuit import Circuito
+from circuit.abstract_circuit import CircuitoBase
 import pandas as pd
 from typing import Any
 import hashlib
