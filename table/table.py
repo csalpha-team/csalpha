@@ -1,7 +1,7 @@
 
 from table.abstract_table import TableBase
-from circuit.circuit import Circuito
-from circuit.abstract_circuit import CircuitoBase
+from circuit.circuit import Circuit
+from circuit.abstract_circuit import CircuitBase
 import pandas as pd
 from typing import Any
 import hashlib
@@ -33,12 +33,12 @@ class Table(TableBase):
 
         self._dataframe_table: pd.DataFrame = pd.DataFrame()
 
-    def insert_circuit(self, circuit: Circuito) -> None:
+    def insert_circuit(self, circuit: Circuit) -> None:
         self._dict_table.update({circuit.id_circuito: circuit})
 
 
     def remove_circuit(self, circuit_remove: Any) -> None:
-        if isinstance(circuit_remove, Circuito):
+        if isinstance(circuit_remove, Circuit):
             id_circuito = circuit_remove.id_circuito
         else:
             id_circuito = circuit_remove

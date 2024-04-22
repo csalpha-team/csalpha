@@ -1,6 +1,6 @@
 import pytest
 import pandas as pd
-from circuit.circuit import Circuito
+from circuit.circuit import Circuit
 from launcher.launcher import Launcher
 from table.table import Table
 import unicodedata
@@ -39,13 +39,13 @@ def test_if_tabela_show_table_is_dataframe():
 
     for circ in data['numeroDoCircuito']:
         lis_ = data[data['numeroDoCircuito']==circ].to_dict(orient='records')
-        circuito = Circuito()
+        circuit = Circuit()
         for lis in lis_:
             launcher = Launcher()
             launcher.input_data(**lis)
-            circuito.add_lancamento_to_circuito(launcher)
+            circuit.add_launch_to_circuit(launcher)
         
-        table.insert_circuit(circuit=circuito)
+        table.insert_circuit(circuit=circuit)
     
     assert isinstance(table.show_table(format='pandas'), pd.DataFrame)
     assert isinstance(table.show_table(), dict)

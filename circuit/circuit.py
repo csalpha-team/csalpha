@@ -1,4 +1,4 @@
-from .abstract_circuit import CircuitBase
+from circuit.abstract_circuit import CircuitBase
 from launcher.abstract_launcher import LauncherBase
 import warnings
 import hashlib
