@@ -78,8 +78,8 @@ class Circuit(CircuitBase):
         # present in this circuit
         if value:
             self.fill_strategy()
-            self._sobrevenda = np.mean([list(self._dict_circuit.values())[i]['quantity'] for i in range(len(self._dict_circuit.values()))])
-            self._sobrecompra = np.mean([list(self._dict_circuit.values())[i]['quantity'] for i in range(len(self._dict_circuit.values()))])
+            self._sobrevenda = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))])
+            self._sobrecompra = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))])
             self._circuit_closed = value
 
         self._circuit_closed = value
