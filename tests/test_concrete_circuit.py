@@ -116,7 +116,7 @@ def test_if_add_launch_to_circuit_is_working():
 
 
 
-def test_remove_lancamento_from_circuit():
+def test_remove_launch_from_circuit():
     circuit = Circuit()
 
     launcher1 = Launcher()
@@ -126,7 +126,7 @@ def test_remove_lancamento_from_circuit():
 
     assert circuit.get_launches()[circuit.circuit_id][launcher1.launcher_id] == launcher1.check_data()
 
-    circuit.remove_launch_from_circuit(circuit_id)
+    circuit.remove_launch_from_circuit(circuit.circuit_id)
 
     with pytest.raises(KeyError):
         assert circuit.get_launches()[circuit.circuit_id][launcher1.launcher_id]
@@ -148,7 +148,7 @@ def test_auto_fill_na_is_working():
 
     circuit._dataframe_circuit.isna().sum().sum()>0
 
-    circuit.is_closed(True)
+    circuit.circuit_closed(True)
 
 
     assert circuit._dataframe_circuit.isna().sum().sum()==0
