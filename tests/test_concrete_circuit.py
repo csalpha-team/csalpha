@@ -126,7 +126,7 @@ def test_remove_launch_from_circuit():
 
     assert circuit.get_launches()[circuit.circuit_id][launcher1.launcher_id] == launcher1.check_data()
 
-    circuit.remove_launch_from_circuit(circuit.circuit_id)
+    circuit.remove_launch_from_circuit(launcher1.launcher_id)
 
     with pytest.raises(KeyError):
         assert circuit.get_launches()[circuit.circuit_id][launcher1.launcher_id]
