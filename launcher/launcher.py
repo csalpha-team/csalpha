@@ -30,8 +30,8 @@ class Launcher(LauncherBase):
         returning the list of filled and/or unfilled data.
     """
 
-    def __init__(self, id_launcher='auto') -> None:
-        self.id_launcher = self._generate_launcher_id(id_launcher=id_launcher) # Consider how to automatically generate this ID
+    def __init__(self, launcher_id='auto') -> None:
+        self.launcher_id = self._generate_launcher_id(launcher_id=launcher_id) # Consider how to automatically generate this ID
 
         self._dic_input = {
             "nomeAgenteVenda": None,
@@ -116,13 +116,13 @@ class Launcher(LauncherBase):
         """
         return self._dic_input
     
-    def _generate_launcher_id(self, id_launcher: Any='auto') -> str:
+    def _generate_launcher_id(self, launcher_id: Any='auto') -> str:
         """
         Generates a unique ID for the launch.
 
         Parameters
         ----------
-        id_launcher : Any
+        launcher_id : Any
             ID of the launch. If 'auto', a unique ID will be automatically generated.
 
         Returns
@@ -130,7 +130,7 @@ class Launcher(LauncherBase):
         str
             Unique ID of the launch.
         """
-        if id_launcher == 'auto':
+        if launcher_id == 'auto':
             seed = str(time.time()) + "1ePcWuuN"
             id_ = hashlib.sha1(seed.encode()).hexdigest()[:10]
         else:

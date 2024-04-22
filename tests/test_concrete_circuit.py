@@ -92,63 +92,63 @@ def test_create_circuit():
     circuit = Circuit()
 
     # Create a new circuit using sample data
-    circuito_id = circuit.id_circuito
+    circuit_id = circuit.circuit_id
     
     # Check if the circuit is created successfully
-    assert isinstance(circuito_id, str)
-    assert circuit.get_lancamentos()[circuito_id] == {}
+    assert isinstance(circuit_id, str)
+    assert circuit.get_launches()[circuit_id] == {}
 
 
 def test_if_add_lancamento_to_circuit_is_working():
     # Instanciando circuit
-    circuit = circuit()
+    circuit = Circuit()
 
     # Instanciando o Lançamento
     launcher = Launcher()
 
     launcher.input_data(**sample_data1)
 
-    circuit.add_lancamento_to_circuito(launcher)
+    circuit.add_launch_to_circuit(launcher)
 
-    assert len(circuit.get_lancamentos()[circuit.id_circuito][launcher.id_lancamento].keys())==len(sample_data1.keys())
+    assert len(circuit.get_launches()[circuit.circuit_id][launcher.id_launcher].keys())==len(sample_data1.keys())
 
-    assert isinstance(circuit.get_lancamentos(), dict)
+    assert isinstance(circuit.get_launches(), dict)
 
 
 
 def test_remove_lancamento_from_circuit():
-    circuit = circuit()
+    circuit = Circuit()
 
     launcher1 = Launcher()
     launcher1.input_data(**sample_data1)
 
-    circuit.add_lancamento_to_circuit(launcher1)
+    circuit.add_launch_to_circuit(launcher1)
 
-    assert circuit.get_lancamentos()[circuit.id_circuito][launcher1.id_lancamento] == launcher1.check_data()
+    assert circuit.get_launches()[circuit.circuit_id][launcher1.id_launcher] == launcher1.check_data()
 
-    circuit.remove_lancamento_from_circuito(launcher1)
+    circuit.remove_launch_from_circuit(circuit_id)
 
     with pytest.raises(KeyError):
-        assert circuit.get_lancamentos()[circuit.id_circuito][launcher1.id_lancamento]
+        assert circuit.get_launches()[circuit.circuit_id][launcher1.id_launcher]
 
 def test_auto_fill_na_is_working():
-    circuit = circuit()
+    circuit = Circuit()
 
     launcher1 = Launcher()
     launcher1.input_data(**sample_data1)
-    circuit.add_lancamento_to_circuit(launcher1)
+    circuit.add_launch_to_circuit(launcher1)
 
     launcher2 = Launcher()
     launcher2.input_data(**sample_data2)
-    circuit.add_lancamento_to_circuit(launcher2)
+    circuit.add_launch_to_circuit(launcher2)
 
     launcher3 = Launcher()
     launcher3.input_data(**sample_data3)
-    circuit.add_lancamento_to_circuit(launcher3)
+    circuit.add_launch_to_circuit(launcher3)
 
     circuit._dataframe_circuit.isna().sum().sum()>0
 
-    circuit.circuito_fechado(True)
+    circuit.circuit_closed(True)
 
 
     assert circuit._dataframe_circuit.isna().sum().sum()==0

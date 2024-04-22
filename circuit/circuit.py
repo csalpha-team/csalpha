@@ -18,10 +18,10 @@ class Circuit(CircuitBase):
         dict = {
 
             circuit_id : {
-                launch_id : { 
+                launcher_id : { 
                                 {variable : value},
                 },
-                launch_id : { 
+                launcher_id : { 
                                 {variable : value},
                 }
                 
@@ -40,7 +40,7 @@ class Circuit(CircuitBase):
     add_launch_to_circuit(circuit_id, launch)
         Adds a launch to the specified circuit.
 
-    remove_launch_from_circuit(circuit_id, launch_id)
+    remove_launch_from_circuit(circuit_id, launcher_id)
         Removes a launch from the specified circuit.
 
     get_launches(circuit_id)
@@ -100,7 +100,7 @@ class Circuit(CircuitBase):
                     self._dataframe_circuit[col] = self._dataframe_circuit[col].fillna(np.nan)
                     warnings.WarningMessage(f'An error occurred while filling missing data in column {col}: {e}')
 
-        self._dict_circuit = self._dataframe_circuit.set_index('launch_id').to_dict(orient='index')
+        self._dict_circuit = self._dataframe_circuit.set_index('launcher_id').to_dict(orient='index')
 
 
 
@@ -132,34 +132,34 @@ class Circuit(CircuitBase):
         launch : dict
             Dictionary representing the data of the launch to be added.
         """
-        launch_id = launch.launch_id
+        launcher_id = launch.launcher_id
         launch_dict = launch.check_data()
-        self._dict_circuit[launch_id] = launch_dict
+        self._dict_circuit[launcher_id] = launch_dict
 
-        self._dataframe_circuit = pd.DataFrame(self._dict_circuit).T.reset_index().rename(columns={'index': 'launch_id'})
+        self._dataframe_circuit = pd.DataFrame(self._dict_circuit).T.reset_index().rename(columns={'index': 'launcher_id'})
 
 
 
-    def remove_launch_from_circuit(self, launch_id: str or LauncherBase):
+    def remove_launch_from_circuit(self, launcher_id: str or LauncherBase):
         """
         Removes a launch from the specified circuit.
 
         Parameters
         ----------
-        launch_id : str
+        launcher_id : str
             ID of the launch to be removed. It is also possible to pass an object
             of type LauncherBase, which will be converted to the corresponding ID.
         """
 
-        if isinstance(launch_id, LauncherBase):
-            launch_id = launch_id.launch_id
+        if isinstance(launcher_id, LauncherBase):
+            launcher_id = launcher_id.launcher_id
 
-        if launch_id in self._dict_circuit.keys():
-            del self._dict_circuit[launch_id]
+        if launcher_id in self._dict_circuit.keys():
+            del self._dict_circuit[launcher_id]
         else:
-            raise KeyError(f"Lancamento with ID {launch_id} does not exist in circuit.")
+            raise KeyError(f"Lancamento with ID {launcher_id} does not exist in circuit.")
         
-        self._dataframe_circuit = pd.DataFrame(self._dict_circuit).T.reset_index().rename(columns={'index': 'launch_id'})
+        self._dataframe_circuit = pd.DataFrame(self._dict_circuit).T.reset_index().rename(columns={'index': 'launcher_id'})
 
 
     def get_launches(self) -> dict:
