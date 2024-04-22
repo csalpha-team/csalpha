@@ -34,17 +34,17 @@ class Table(TableBase):
         self._dataframe_table: pd.DataFrame = pd.DataFrame()
 
     def insert_circuit(self, circuit: Circuit) -> None:
-        self._dict_table.update({circuit.id_circuito: circuit})
+        self._dict_table.update({circuit.circuit_id: circuit})
 
 
     def remove_circuit(self, circuit_remove: Any) -> None:
         if isinstance(circuit_remove, Circuit):
-            id_circuito = circuit_remove.id_circuito
+            circuit_id = circuit_remove.circuit_id
         else:
-            id_circuito = circuit_remove
+            circuit_id = circuit_remove
 
         try:
-            self._dict_table.pop(id_circuito)
+            self._dict_table.pop(circuit_id)
         
         except KeyError as e:
             print("Circuit not found.", e)
@@ -57,7 +57,7 @@ class Table(TableBase):
         if format=='standard':
             _dic_show = {}
             for k, v in self._dict_table.items():
-                _dic_show.update({k: v.get_lancamentos()})
+                _dic_show.update({k: v.get_launches()})
             return _dic_show
 
         elif format=='pandas':
@@ -65,10 +65,10 @@ class Table(TableBase):
 
             for k, v in self._dict_table.items():
                 if v.is_closed():
-                    app_list.append(v.show_dataframe_circuito())
+                    app_list.append(v.show_dataframe_circuit())
                 else:
-                    v.circuito_fechado(True)
-                    app_list.append(v.show_dataframe_circuito())
+                    v.circuit_closed(True)
+                    app_list.append(v.show_dataframe_circuit())
 
             return pd.concat(app_list)
 

@@ -99,7 +99,7 @@ def test_create_circuit():
     assert circuit.get_launches()[circuit_id] == {}
 
 
-def test_if_add_lancamento_to_circuit_is_working():
+def test_if_add_launch_to_circuit_is_working():
     # Instanciando circuit
     circuit = Circuit()
 
@@ -110,7 +110,7 @@ def test_if_add_lancamento_to_circuit_is_working():
 
     circuit.add_launch_to_circuit(launcher)
 
-    assert len(circuit.get_launches()[circuit.circuit_id][launcher.id_launcher].keys())==len(sample_data1.keys())
+    assert len(circuit.get_launches()[circuit.circuit_id][launcher.launcher_id].keys())==len(sample_data1.keys())
 
     assert isinstance(circuit.get_launches(), dict)
 
@@ -124,12 +124,12 @@ def test_remove_lancamento_from_circuit():
 
     circuit.add_launch_to_circuit(launcher1)
 
-    assert circuit.get_launches()[circuit.circuit_id][launcher1.id_launcher] == launcher1.check_data()
+    assert circuit.get_launches()[circuit.circuit_id][launcher1.launcher_id] == launcher1.check_data()
 
     circuit.remove_launch_from_circuit(circuit_id)
 
     with pytest.raises(KeyError):
-        assert circuit.get_launches()[circuit.circuit_id][launcher1.id_launcher]
+        assert circuit.get_launches()[circuit.circuit_id][launcher1.launcher_id]
 
 def test_auto_fill_na_is_working():
     circuit = Circuit()
@@ -148,7 +148,7 @@ def test_auto_fill_na_is_working():
 
     circuit._dataframe_circuit.isna().sum().sum()>0
 
-    circuit.circuit_closed(True)
+    circuit.is_closed(True)
 
 
     assert circuit._dataframe_circuit.isna().sum().sum()==0
