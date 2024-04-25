@@ -1,8 +1,8 @@
 import pytest
 import pandas as pd
-from circuito.circuito import Circuito
+from circuit.circuit import Circuit
 from launcher.launcher import Launcher
-from tabela.tabela import Tabela
+from table.table import Table
 import unicodedata
 from warnings import WarningMessage
 
@@ -20,7 +20,7 @@ data = pd.read_excel('tbextensa.xls')
 
 def test_create_tabela():
 
-    assert Tabela()
+    assert Table()
 
 
 
@@ -35,20 +35,20 @@ def test_if_tabela_show_table_is_dataframe():
 
     data.columns = [x[0].lower()+x[1:] for x in data.columns]
 
-    tabela = Tabela()
+    table = Table()
 
     for circ in data['numeroDoCircuito']:
         lis_ = data[data['numeroDoCircuito']==circ].to_dict(orient='records')
-        circuito = Circuito()
+        circuit = Circuit()
         for lis in lis_:
             launcher = Launcher()
             launcher.input_data(**lis)
-            circuito.add_lancamento_to_circuito(launcher)
+            circuit.add_launch_to_circuit(launcher)
         
-        tabela.insert_circuit(circuit=circuito)
+        table.insert_circuit(circuit=circuit)
     
-    assert isinstance(tabela.show_table(format='pandas'), pd.DataFrame)
-    assert isinstance(tabela.show_table(), dict)
+    assert isinstance(table.show_table(format='pandas'), pd.DataFrame)
+    assert isinstance(table.show_table(), dict)
 
 # Run the tests
 if __name__ == '__main__':

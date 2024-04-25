@@ -57,7 +57,7 @@ def test_if_raise_warning_if_pass_a_key_not_in_the_dictionary():
 
 def test_if_id_is_inputed():
     launcher = Launcher()
-    assert isinstance(launcher.id_lancamento, str)
+    assert isinstance(launcher.launcher_id, str)
 
 def check_if_sample_data_is_inputed_correctly():
     launcher = Launcher()

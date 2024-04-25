@@ -6,35 +6,32 @@ import hashlib
 
 class Launcher(LauncherBase):
     """
-    Classe que implementa a coleta de dados para o lançamento
-    de um dado circuito. Os dados a serem coletados estão estritamente 
-    associados ao visto output do Netz.
+    Class that implements data collection for launching a given circuit.
+    The data to be collected is strictly associated with the output seen from Netz.
 
-    Atributos
-    ---------
+    Attributes
+    ----------
     _dic_input : dict
-        Dicionário que armazena os dados de entrada para o lançamento
-        de um dado circuito. Os dados são armazenados em um dicionário
-        para facilitar a coleta de dados e a verificação dos mesmos.
-    
-    Métodos
+        Dictionary that stores the input data for launching a given circuit.
+        The data is stored in a dictionary to facilitate data collection and verification.
+
+    Methods
     -------
     input_data(**kwargs)
-        Método que recebe os dados de entrada para o lançamento de um
-        dado circuito. Os dados são armazenados no dicionário _dic_input.
-    
+        Method that receives the input data for launching a given circuit.
+        The data is stored in the _dic_input dictionary.
+
     remove_data(*args)
-        Método que remove os dados de entrada para o lançamento de um
-        dado circuito. Os dados são removidos do dicionário _dic_input.
+        Method that removes the input data for launching a given circuit.
+        The data is removed from the _dic_input dictionary.
 
     check_data()
-        Método para verificar o status atual dos dados de lançamento,
-        retornando a relação de dados preenchidos e/ou não preenchidos.
-
+        Method to check the current status of the launch data,
+        returning the list of filled and/or unfilled data.
     """
 
-    def __init__(self, id_launcher='auto') -> None:
-        self.id_lancamento = self._generate_launcher_id(id_launcher=id_launcher) # Pensar em como gerar automaticamente esse id
+    def __init__(self, launcher_id='auto') -> None:
+        self.launcher_id = self._generate_launcher_id(launcher_id=launcher_id) # Consider how to automatically generate this ID
 
         self._dic_input = {
             "nomeAgenteVenda": None,
@@ -63,21 +60,21 @@ class Launcher(LauncherBase):
     
     def input_data(self, **kwargs) -> None:
         """
-        Método que recebe os dados de entrada para o lançamento de um
-        dado circuito. Os dados são armazenados no dicionário _dic_input.
+        Method that receives the input data for launching a given circuit.
+        The data is stored in the _dic_input dictionary.
 
-        O dado de entrada deve estar associado a uma chave do dicionário, 
-        caso não esteja, um aviso será retornado e o dado não será armazenado.
+        The input data must be associated with a key in the dictionary,
+        otherwise a warning will be returned and the data will not be stored.
 
-        O campo preenchido só pode ser atualizado uma única vez. Caso o campo
-        já esteja preenchido, o dado não será atualizado. Para atualizar o campo
-        é necessário remover o dado e inserir novamente.
+        The filled field can only be updated once. If the field is already filled,
+        the data will not be updated. To update the field, it is necessary to remove
+        the data and insert it again.
 
-        Parâmetros
+        Parameters
         ----------
         kwargs : dict
-            Dicionário com os dados de entrada para o lançamento de um dado
-            circuito. Os dados são armazenados no dicionário _dic_input.
+            Dictionary with the input data for launching a given circuit.
+            The data is stored in the _dic_input dictionary.
         """
         for key, value in kwargs.items():
             if key in self._dic_input.keys():
@@ -85,23 +82,20 @@ class Launcher(LauncherBase):
                     self._dic_input[key] = value
                 else:
                     continue
-        #! O design inicial das contas entende o lançamento como uma linha de tabela e não como valores
-        #! indiviuais de colunas;
-                
             else:
                 warnings.warn(f"Key {key} not found in the dictionary", UserWarning)
 
 
     def remove_data(self, *args):
         """
-        Método que remove os dados de entrada para o lançamento de um
-        dado circuito. Os dados são removidos do dicionário _dic_input.
+        Method that removes the input data for launching a given circuit.
+        The data is removed from the _dic_input dictionary.
         
-        Parâmetros
+        Parameters
         ----------
         args : tuple
-            Tupla com os dados de entrada para o lançamento de um dado
-            circuito. Os dados são removidos do dicionário _dic_input.
+            Tuple with the input data for launching a given circuit.
+            The data is removed from the _dic_input dictionary.
         """
         for key in args:
             if key in self._dic_input.keys():
@@ -112,31 +106,31 @@ class Launcher(LauncherBase):
 
     def check_data(self) -> dict:
         """
-        Método para verificar o status atual dos dados de lançamento,
-        retornando a relação de dados preenchidos e/ou não preenchidos.
+        Method to check the current status of the launch data,
+        returning the list of filled and/or unfilled data.
 
-        Retorna
+        Returns
         -------
         dict
-            Dict com a relação de dados preenchidos e/ou não preenchidos.
+            Dictionary with the list of filled and/or unfilled data.
         """
         return self._dic_input
     
-    def _generate_launcher_id(self, id_launcher: Any='auto') -> str:
+    def _generate_launcher_id(self, launcher_id: Any='auto') -> str:
         """
-        Gera um ID único para o lançamento.
+        Generates a unique ID for the launch.
 
-        Parâmetros
+        Parameters
         ----------
-        id_launcher : Any
-            ID do lançamento. Se 'auto', um ID único será gerado automaticamente.
+        launcher_id : Any
+            ID of the launch. If 'auto', a unique ID will be automatically generated.
 
-        Retorna
+        Returns
         -------
         str
-            ID único do lançamento.
+            Unique ID of the launch.
         """
-        if id_launcher == 'auto':
+        if launcher_id == 'auto':
             seed = str(time.time()) + "1ePcWuuN"
             id_ = hashlib.sha1(seed.encode()).hexdigest()[:10]
         else:

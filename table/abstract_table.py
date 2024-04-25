@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 import os
 
-class TabelaBase(ABC):
+class TableBase(ABC):
 
     @abstractmethod
     def insert_circuit(self):

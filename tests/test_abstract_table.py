@@ -1,16 +1,16 @@
-from tabela.abstract_tabela import TabelaBase
+from table.abstract_table import TableBase
 import pytest
 
 
-class TabelaWithAbstractMethodNotDefined(TabelaBase):
+class TabelaWithAbstractMethodNotDefined(TableBase):
     """
-    Concrete class inheriting from TabelaBase where abstract methods are not defined.
+    Concrete class inheriting from TableBase where abstract methods are not defined.
     """
     pass
 
-class TabelaWithAbstractMethodDefined(TabelaBase):
+class TabelaWithAbstractMethodDefined(TableBase):
     """
-    Concrete class inheriting from TabelaBase where abstract methods are defined.
+    Concrete class inheriting from TableBase where abstract methods are defined.
     """
     def create_tabela(self, **kwargs):
         pass
