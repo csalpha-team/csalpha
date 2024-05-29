@@ -99,7 +99,7 @@ python_boilerplate/
 cookiecutter-pypackage-env/
 
 # Python Notebooks
-*.ipynb
+#*.ipynb
 
 # IDE settings
 .vscode/

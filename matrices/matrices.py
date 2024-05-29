@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 
 
+#TODO: Criar documentação na linguagem das matrizes para os métodos
 
 class Matrices(MatricesBase):
     #NOTE: v1 sera implementada usando a tbextensa.xls
@@ -50,3 +51,5 @@ class Matrices(MatricesBase):
         
         return matrix_df 
             
+
+
