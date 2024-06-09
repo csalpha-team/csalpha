@@ -61,6 +61,8 @@ class Matrices(MatricesBase):
 
         self.implicit_price_matrix = pd.DataFrame()
 
+        self.pricing_matrix = pd.DataFrame()
+
     def _row_sum(self, row: pd.Series) -> pd.Series:
         """Calculates the sum of the values in a row.
 
@@ -82,7 +84,8 @@ class Matrices(MatricesBase):
                         product: str,
                         matrice_type:str,
                         aggregate_method: str,
-                        df: pd.DataFrame = pd.DataFrame()
+                        df: pd.DataFrame = pd.DataFrame(),
+                        insert_total = True
                         ) -> pd.DataFrame:
         """
         Creates matrices based on the specified parameters.
@@ -142,14 +145,15 @@ class Matrices(MatricesBase):
             fill_value=0 
         ).reindex(index=unique_sectors, columns=unique_sectors, fill_value=0)
 
-        total_bought = pd.DataFrame(matrix_df.apply(self._row_sum, axis=0).to_dict(), index=[f"Total{self.matrice_type}Bought"])
-        matrix_df = pd.concat([matrix_df, total_bought])
-        matrix_df.index.name = self.seller_sector_agent
-        matrix_df.columns.name = self.buyer_sector_agent
+        if insert_total:
+            total_bought = pd.DataFrame(matrix_df.apply(self._row_sum, axis=0).to_dict(), index=[f"Total{self.matrice_type}Bought"])
+            matrix_df = pd.concat([matrix_df, total_bought])
+            matrix_df.index.name = self.seller_sector_agent
+            matrix_df.columns.name = self.buyer_sector_agent
 
-        matrix_df[f"Total{self.matrice_type}Sold"] = matrix_df.apply(self._row_sum, axis=1)
+            matrix_df[f"Total{self.matrice_type}Sold"] = matrix_df.apply(self._row_sum, axis=1)
 
-        matrix_df[f"Total{self.matrice_type}Sold"][f"Total{self.matrice_type}Bought"] = None
+        # matrix_df[f"Total{self.matrice_type}Sold"][f"Total{self.matrice_type}Bought"] = None
         
         return matrix_df
     
@@ -175,7 +179,7 @@ class Matrices(MatricesBase):
                         self,
                         product: str,
                         qtt_field: str = '',
-                          df: pd.DataFrame = pd.DataFrame()
+                        df: pd.DataFrame = pd.DataFrame()
                           ) -> pd.DataFrame:
         """
         Formats and creates a quantity matrix.
@@ -209,7 +213,7 @@ class Matrices(MatricesBase):
     def format_parametric(
                             self,
                             product: str,
-                            quantity: str = '',
+                            qtt_field: str = '',
                             df: pd.DataFrame = pd.DataFrame()
                             ) -> pd.DataFrame:
         """
@@ -230,7 +234,7 @@ class Matrices(MatricesBase):
         if self._check_if_is_null_(df):
             df = self.dataframe.copy()
         
-        if self._check_if_is_null_(quantity):
+        if self._check_if_is_null_(qtt_field):
             qtt_field = deepcopy(self.quantity_field)
 
         self.qtt_matrix = self.create_matrices(df=df,
@@ -238,7 +242,7 @@ class Matrices(MatricesBase):
                                                matrice_type=qtt_field,
                                                aggregate_method='sum')
         
-        total_production = self.qtt_matrix[f"Total{qtt_field}Sold"].max() # uses the fact that the production is the alpha-sector.
+        total_production = self.qtt_matrix[f"Total{qtt_field}Sold"].sort_values(ascending=False)[1] # uses the fact that the production is the alpha-sector.
 
         self.parametric_matrix = self.qtt_matrix / total_production
 
@@ -281,8 +285,14 @@ class Matrices(MatricesBase):
         return self.val_matrix
 
 
-
-    def format_implicit_price(self, agent_price_field: str, df: pd.DataFrame = pd.DataFrame()) -> pd.DataFrame:
+    # TODO: Preço implícito médio é calculado pela razão entre o preço e a quantidade
+    def format_implicit_price(self,
+                              product: str,
+                              qtt_field: str,
+                              val_field: str,
+                              df: pd.DataFrame = pd.DataFrame(),
+                              insert_total = True
+                              ) -> pd.DataFrame:
         """
         Formats and creates an implicit price matrix.
 
@@ -297,23 +307,82 @@ class Matrices(MatricesBase):
 
         (pd.DataFrame): The formatted implicit price matrix.
         """
+
         if self._check_if_is_null_(df):
             df = self.dataframe.copy()
         
-        aux_df = df.groupby([self.seller_sector_agent, self.buyer_sector_agent])[agent_price_field].mean().reset_index()
+        if self._check_if_is_null_(qtt_field):
+            qtt_field = deepcopy(self.quantity_field)
 
-        # Select the unique sectors from buyer and seller sector agent
-        unique_sectors_seller = aux_df[self.seller_sector_agent].unique()
-        unique_sectors_buyer = aux_df[self.buyer_sector_agent].unique()
+        if self._check_if_is_null_(val_field):
+            val_field = deepcopy(self.value_field)
 
-        unique_sectors = sorted(set(unique_sectors_seller).union(set(unique_sectors_buyer)))
 
-        self.implicit_price_matrix = aux_df.pivot_table(
-            index=self.seller_sector_agent,
-            columns=self.buyer_sector_agent,
-            values=agent_price_field,
-            fill_value=0
-            ).reindex(index=unique_sectors, columns=unique_sectors, fill_value=0)
+        self.qtt_matrix = self.create_matrices(df=df,
+                                               product=product,
+                                               matrice_type=qtt_field,
+                                               aggregate_method='sum',
+                                               insert_total=insert_total
+                                               ).rename(columns={f'Total{self.quantity_field}Sold': 'TotalImplicitPriceSold'}, index={f"Total{self.quantity_field}Bought": "TotalImplicitPriceBought"})
+        
 
+        self.val_matrix = self.create_matrices(
+                                                df=df,
+                                                product=product,
+                                                matrice_type=val_field,
+                                                aggregate_method='sum',
+                                                insert_total=insert_total
+                                            ).rename(columns={f'Total{self.value_field}Sold': 'TotalImplicitPriceSold'}, index={f"Total{self.value_field}Bought": "TotalImplicitPriceBought"})
+
+
+        self.implicit_price_matrix = (self.val_matrix / self.qtt_matrix).fillna(0)
 
         return self.implicit_price_matrix
+    
+
+
+
+    def format_pricing(
+                     self,
+                     product: str,
+                     qtt_field: str,
+                     val_field: str,
+                     df: pd.DataFrame = pd.DataFrame(),
+                     insert_total = True
+                     ) -> pd.DataFrame:
+        
+        """
+        Formats and creates the pricing matrix.
+
+        Parameters:
+        ----------
+
+        product (str): The product to filter the data by.
+        val_field (str, optional): The value field to use. Default is an empty string, which uses the class's value_field.
+        df (pd.DataFrame, optional): DataFrame to use. If not provided, the class's DataFrame is used.
+
+        Returns:
+        -------
+
+        (pd.DataFrame): The formatted value matrix.
+        """
+        if self._check_if_is_null_(df):
+            df = self.dataframe.copy()
+
+        if self._check_if_is_null_(qtt_field):
+            qtt_field = deepcopy(self.quantity_field)
+
+        if self._check_if_is_null_(val_field):
+            val_field = deepcopy(self.value_field)
+
+        self.implicit_price_matrix = self.format_implicit_price(
+                                                df=df,
+                                                product=product,
+                                                qtt_field=qtt_field,
+                                                val_field=val_field,
+                                                insert_total=False                           
+                                            )
+        
+        self.pricing_matrix = self.implicit_price_matrix/self.implicit_price_matrix.iloc[0].mean()
+
+        return self.pricing_matrix
