@@ -1,5 +1,7 @@
 site_name: Contas Alfa
 
+repo_url: https://github.com/csalpha-team/csalpha/tree/main/docs
+
 theme:
   name: material
   features:
@@ -27,15 +29,15 @@ nav:
   - Home: index.md
   - Documentação: documentacao.md
 
-plugins:
-  - search
-  - mkdocstrings:
-      handlers:
-        python:
-          rendering:
-            rendering_opt: "value"       
-          setup_commands:
-            - import sys
-            - sys.path.insert(0, "csalpha")
-            - print(sys.path)
+# plugins:
+#   - search
+#   - mkdocstrings:
+#       handlers:
+#         python:
+#           rendering:
+#             rendering_opt: "value"       
+#           setup_commands:
+#             - import sys
+#             - sys.path.insert(0, "csalpha")
+#             - print(sys.path)
 
