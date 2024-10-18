@@ -1,6 +1,6 @@
 site_name: Contas Alfa
 
-repo_url: https://github.com/csalpha-team/csalpha
+repo_url: https://github.com/csalpha-team/csalpha/tree/main/docs
 site_url: https://csalpha-team.github.io/csalpha/
 
 theme:
@@ -39,6 +39,6 @@ plugins:
             rendering_opt: "value"       
           setup_commands:
             - import sys
-            - sys.path.insert(0, "csalpha")
+            - sys.path.insert(0, "csalpha/docs")
             - print(sys.path)
 
