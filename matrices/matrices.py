@@ -45,6 +45,7 @@ class Matrices(MatricesBase):
         """
         # self.dataframe = pd.read_excel(table_path)
         if table_path:
+            # Read different formats
             self.dataframe = pd.read_excel(table_path)
         self.seller_sector_agent = seller_sector_agent
         self.buyer_sector_agent = buyer_sector_agent

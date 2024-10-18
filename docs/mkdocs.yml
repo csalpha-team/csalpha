@@ -1,0 +1,41 @@
+site_name: Contas Alfa
+
+theme:
+  name: material
+  features:
+    - header.autohide
+    - navigation.sections
+    - navigation.top
+    - toc.integrate
+    - navigation.tabs
+
+markdown_extensions:
+  - admonition
+  - toc:
+      permalink: true
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed
+  - pymdownx.highlight
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/csalpha-team/csalpha
+
+nav:
+  - Home: index.md
+  - Documentação: documentacao.md
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          rendering:
+            rendering_opt: "value"       
+          setup_commands:
+            - import sys
+            - sys.path.insert(0, "csalpha")
+            - print(sys.path)
+
