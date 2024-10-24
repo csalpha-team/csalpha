@@ -14,7 +14,9 @@ class Matrices(MatricesBase):
                  quantity_field: str = "Quantidade",
                  value_field: str = "Valor",
                  seller_sector_agent: str = "SetorDoAgenteQueVendeI",
-                 buyer_sector_agent: str = "SetorDoAgenteQueCompraI"
+                 buyer_sector_agent: str = "SetorDoAgenteQueCompraI",
+                 seller_location_agent: str = "LocalDoAgenteQueVende",
+                 buyer_location_agent: str = "LocalDoAgenteQueCompra"
 
                  ) -> None:
         """
@@ -28,6 +30,9 @@ class Matrices(MatricesBase):
         value_field (str, optional): The name of the value field in the dataset. Default is "Valor".
         seller_sector_agent (str, optional): The name of the field representing the seller sector. Default is "SetorDoAgenteQueVendeI".
         buyer_sector_agent (str, optional): The name of the field representing the buyer sector. Default is "SetorDoAgenteQueCompraI".
+        seller_location_agent (str, optional): The name of the field representing the seller local. Default is "LocalDoAgenteQueVende".
+        buyer_location_agent (str, optional): The name of the field representing the buyer local. Default is "LocalDoAgenteQueCompra".
+
 
         Attributes:
         ----------
@@ -35,8 +40,8 @@ class Matrices(MatricesBase):
         dataframe (pd.DataFrame): DataFrame containing the data read from the Excel file.
         quantity_field (str): The quantity field name.
         value_field (str): The value field name.
-        seller_sector_agent (str): The seller sector field name.
-        buyer_sector_agent (str): The buyer sector field name.
+        
+
         qtt_matrix (pd.DataFrame): DataFrame for the quantity matrix.
         value_matrix (pd.DataFrame): DataFrame for the value matrix.
         parametric_matrix (pd.DataFrame): DataFrame for the parametric matrix.
@@ -48,20 +53,21 @@ class Matrices(MatricesBase):
             self.dataframe = pd.read_excel(table_path)
         self.seller_sector_agent = seller_sector_agent
         self.buyer_sector_agent = buyer_sector_agent
-
+        self.seller_sector_agent = seller_sector_agent
+        self.buyer_sector_agent = buyer_sector_agent
+        self.seller_location_agent = seller_location_agent
+        self.buyer_location_agent = buyer_location_agent
         self.quantity_field = quantity_field
-
         self.value_field = value_field
 
         self.qtt_matrix = pd.DataFrame()
-        
         self.value_matrix = pd.DataFrame()
-
         self.parametric_matrix = pd.DataFrame()
-
         self.implicit_price_matrix = pd.DataFrame()
-
         self.pricing_matrix = pd.DataFrame()
+        self.buyer_local_sector = pd.DataFrame()
+        self.seller_local_sector = pd.DataFrame()
+
 
     def _row_sum(self, row: pd.Series) -> pd.Series:
         """Calculates the sum of the values in a row.
@@ -82,10 +88,11 @@ class Matrices(MatricesBase):
     # TODO: Setar as variáveis do eixo da matriz como input da função. Ex
     def create_matrices(self,
                         product: str,
-                        matrice_type:str,
+                        matrice_type: str,
                         aggregate_method: str,
                         df: pd.DataFrame = pd.DataFrame(),
-                        insert_total = True
+                        insert_total=True,
+                        group_by_location=False
                         ) -> pd.DataFrame:
         """
         Creates matrices based on the specified parameters.
@@ -94,6 +101,8 @@ class Matrices(MatricesBase):
         ----------
 
         product (str): The product to filter the data by.
+        local_seller (str): The location field for the seller agent. This parameter specifies the column name in the dataset that represents the location of the seller's agent. It is used to group and aggregate data based on the seller's location.
+        local_buyer (str): The location field for the buyer agent. This parameter specifies the column name in the dataset that represents the location of the buyer's agent. It is used to group and aggregate data based on the buyer's location. 
         matrice_type (str): The type of matrix to create (must be a field in the DataFrame).
         aggregate_method (str): The aggregation method ('sum', 'mean', or 'median').
         df (pd.DataFrame, optional): DataFrame to use. If not provided, the class's DataFrame is used.
@@ -121,41 +130,69 @@ class Matrices(MatricesBase):
         else:
             raise(KeyError(f"The selected product {product} was not found in the dataframe."))
 
-        #agrupa os dados
-        if aggregate_method=='sum':
-            result_df = df.groupby([self.seller_sector_agent, self.buyer_sector_agent])[self.matrice_type].sum().reset_index()
-        elif aggregate_method=='mean':
-            result_df = df.groupby([self.seller_sector_agent, self.buyer_sector_agent])[self.matrice_type].mean().reset_index()
-        elif aggregate_method=='median':
-            result_df = df.groupby([self.seller_sector_agent, self.buyer_sector_agent])[self.matrice_type].median().reset_index()
+
+        #Check if group_by_location is True
+
+        group_columns = [self.seller_sector_agent, self.buyer_sector_agent]
+        if group_by_location:
+            group_columns.extend([self.seller_location_agent, self.buyer_location_agent])
+
+        #Groups data based on the method
+        if aggregate_method == 'sum':
+            result_df = df.groupby(group_columns)[self.matrice_type].sum().reset_index()
+        elif aggregate_method == 'mean':
+            result_df = df.groupby(group_columns)[self.matrice_type].mean().reset_index()
+        elif aggregate_method == 'median':
+            result_df = df.groupby(group_columns)[self.matrice_type].median().reset_index()
         else:
-            raise(ValueError(f"The selected aggregate method was not valid: {aggregate_method}. Please select or 'sum' or 'mean' or 'median'"))
+            raise(ValueError(f"The selected aggregate method was not valid: {aggregate_method}. Please select 'sum', 'mean', or 'median'"))
         
+
         # Select the unique sectors from buyer and seller sector agent
         unique_sectors_seller = result_df[self.seller_sector_agent].unique()
         unique_sectors_buyer = result_df[self.buyer_sector_agent].unique()
 
         unique_sectors = sorted(set(unique_sectors_seller).union(set(unique_sectors_buyer)))
 
+        if group_by_location:
+            unique_locations_seller = result_df[self.seller_location_agent].unique()
+            unique_locations_buyer = result_df[self.buyer_location_agent].unique()
+            unique_locations = sorted(set(unique_locations_seller).union(set(unique_locations_buyer)))
+        else:
+            unique_locations = [None]  # Placeholder if not grouping by location
+
         #cria proto matriz
-        matrix_df = result_df.pivot_table(
-            index=self.seller_sector_agent,
-            columns=self.buyer_sector_agent, 
-            values=self.matrice_type,
-            fill_value=0 
-        ).reindex(index=unique_sectors, columns=unique_sectors, fill_value=0)
+        matrices_by_location = {}
+        for location in unique_locations:
+            if group_by_location:
+                location_df = result_df[(result_df[self.seller_location_agent] == location) | 
+                                        (result_df[self.buyer_location_agent] == location)]
+            else:
+                location_df = result_df
 
-        if insert_total:
-            total_bought = pd.DataFrame(matrix_df.apply(self._row_sum, axis=0).to_dict(), index=[f"Total{self.matrice_type}Bought"])
-            matrix_df = pd.concat([matrix_df, total_bought])
-            matrix_df.index.name = self.seller_sector_agent
-            matrix_df.columns.name = self.buyer_sector_agent
+            matrix_df = location_df.pivot_table(
+                index=self.seller_sector_agent,
+                columns=self.buyer_sector_agent,
+                values=self.matrice_type,
+                fill_value=0
+            ).reindex(index=unique_sectors, columns=unique_sectors, fill_value=0)
 
-            matrix_df[f"Total{self.matrice_type}Sold"] = matrix_df.apply(self._row_sum, axis=1)
+            if insert_total:
+                total_bought = pd.DataFrame(matrix_df.apply(self._row_sum, axis=0).to_dict(), index=[f"Total{self.matrice_type}Bought"])
+                matrix_df = pd.concat([matrix_df, total_bought])
+                matrix_df.index.name = self.seller_sector_agent
+                matrix_df.columns.name = self.buyer_sector_agent
+
+                matrix_df[f"Total{self.matrice_type}Sold"] = matrix_df.apply(self._row_sum, axis=1)
+
+            if group_by_location:
+                matrices_by_location[location] = matrix_df
+            else:
+                matrices_by_location = matrix_df  # Single matrix if not grouping by location
 
         # matrix_df[f"Total{self.matrice_type}Sold"][f"Total{self.matrice_type}Bought"] = None
         
-        return matrix_df
+        return matrices_by_location
     
     def _check_if_is_null_(self, data_to_test):
         """Checks if the provided data is null or empty.
