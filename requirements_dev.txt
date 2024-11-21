@@ -9,3 +9,4 @@ xlrd>=2.0.1
 mkdocs==1.6.0
 mkdocs-material==9.5.29
 mkdocstrings==0.25.1
+pydantic==2.9.2
