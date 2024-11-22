@@ -1,116 +1,82 @@
 import pytest
 import pandas as pd
-from matrices.cost_matrices import CostMatrix
 from matrices.matrices_local import MatricesLocal
+from matrices.cost_matrices import CostMatrix
+
 
 @pytest.fixture
-def sample_table():
+def cost_calculator():
     """
-    Loads the tbextensa.xls file and verifies it is not empty.
+    Creates an instance of CostMatrix with valid paths for table and inputs.
     """
-    file_path = 'tbextensa.xls'
-    data = pd.read_excel(file_path, engine='xlrd')
-    assert not data.empty, "tbextensa.xls should not be empty"
-    return data
+    return CostMatrix(
+        table_path="tbextensa.xls",
+        inputs_path="extensainsumos.xlsx"
+    )
 
-@pytest.fixture
-def sample_inputs():
-    """
-    Loads the extensainsumos.xlsx file and verifies it is not empty.
-    """
-    file_path = 'extensainsumos.xlsx'
-    data = pd.read_excel(file_path)
-    assert not data.empty, "extensainsumos.xlsx should not be empty"
-    return data
 
-@pytest.fixture
-def cost_matrix_instance(sample_inputs, sample_table):
+def test_cost_matrix_instance_creation(cost_calculator):
     """
-    Creates an instance of CostMatrix using sample data for inputs and table.
+    Test instance creation and basic attributes.
     """
-    matrices_local_instance = MatricesLocal()
-    matrices_local_instance.dataframe = sample_table
+    assert isinstance(cost_calculator, CostMatrix)
+    assert isinstance(cost_calculator.inputs_matrix, pd.DataFrame)
+    assert not cost_calculator.inputs_matrix.empty
 
-    instance = CostMatrix(table_path=None, inputs_path=None)
-    instance.matrices = matrices_local_instance
-    instance.inputs_matrix = sample_inputs
-    return instance
 
-def test_prepare_locations(cost_matrix_instance):
+def test_calculate_cost_matrix_single_city(cost_calculator):
     """
-    Tests whether the value and input matrices are correctly prepared for given locations.
+    Test the calculation of cost matrix for a single city.
     """
-    seller_locations = ['Cametá']
-    cost_matrix_instance._prepare_locations(seller_locations)
-
-    assert 'Cametá' in cost_matrix_instance.value_matrices
-    assert 'Cametá' in cost_matrix_instance.input_matrices
-
-    with pytest.raises(KeyError):
-        cost_matrix_instance._prepare_locations(['InvalidLocation'])
-
-def test_set_alfa_production_sector_gvp(cost_matrix_instance):
-    """
-    Tests the calculation of GVP for the alpha production sector.
-    """
-    seller_locations = ["Cametá"]
-    cost_matrix_instance._prepare_locations(seller_locations)
-    cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='AAProdução')
-
-    assert "Cametá" in cost_matrix_instance.alfa_production_sector_gvp_values
-    assert cost_matrix_instance.alfa_production_sector_gvp_values["Cametá"] > 0
-
-    with pytest.raises(KeyError):
-        cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='InvalidSector')
-
-def test_calculate_alfa_and_beta_gvp(cost_matrix_instance):
-    """
-    Tests the combined GVP calculation for alpha and beta sectors.
-    """
-    seller_locations = ["Cametá"]
-    cost_matrix_instance._prepare_locations(seller_locations)
-    cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='AAProdução')
-    cost_matrix_instance._calculate_alfa_and_beta_gvp()
-
-    assert cost_matrix_instance.alfa_and_beta_gvp > 0
-
-def test_cost_matrix_single_location(cost_matrix_instance):
-    """
-    Tests if a cost matrix can be generated for a single location.
-    """
-    result = cost_matrix_instance.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="AAProdução")
+    result = cost_calculator.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="AAProdução")
+    assert isinstance(result, pd.DataFrame)
     assert not result.empty
 
-def test_cost_matrix_multiple_locations(cost_matrix_instance):
+
+def test_calculate_cost_matrix_multiple_cities(cost_calculator):
     """
-    Tests if a cost matrix can be generated for multiple locations.
+    Test the calculation of cost matrix for multiple cities.
     """
-    result = cost_matrix_instance.calculate_cost_matrix(seller_locations=["Cametá"], alfa_sector="AAProdução")
+    result = cost_calculator.calculate_cost_matrix(seller_locations=["Cametá", "Cametá"], alfa_sector="AAProdução")
+    assert isinstance(result, pd.DataFrame)
     assert not result.empty
 
-def test_invalid_location_in_cost_matrix(cost_matrix_instance):
+
+def test_calculate_cost_matrix_invalid_sector(cost_calculator):
     """
-    Tests whether the function raises a KeyError for invalid locations.
+    Test error handling when an invalid alpha sector is provided.
     """
     with pytest.raises(KeyError):
-        cost_matrix_instance.calculate_cost_matrix(seller_locations="InvalidLocation", alfa_sector="AAProdução")
+        cost_calculator.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="InvalidSector")
 
-def test_cost_matrix_invalid_alfa_sector(cost_matrix_instance):
+
+def test_calculate_cost_matrix_invalid_city(cost_calculator):
     """
-    Tests whether the function raises a KeyError for invalid alpha sectors.
+    Test error handling when an invalid city is provided.
     """
     with pytest.raises(KeyError):
-        cost_matrix_instance.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="InvalidSector")
+        cost_calculator.calculate_cost_matrix(seller_locations="InvalidCity", alfa_sector="AAProdução")
 
-def test_cost_matrix_coefficients_and_costs(cost_matrix_instance):
-    """
-    Tests whether the coefficients and final costs are calculated correctly.
-    """
-    seller_location = "Cametá"
-    result = cost_matrix_instance.calculate_cost_matrix(seller_locations=seller_location, alfa_sector="AAProdução")
-    inputs_matrix = cost_matrix_instance.input_matrices[seller_location]
-    alfa_gvp = cost_matrix_instance.alfa_production_sector_gvp_values[seller_location]
 
-    assert not inputs_matrix.empty
-    assert alfa_gvp > 0
-    assert not result.empty
+def test_manual_cost_calculation(cost_calculator):
+    """
+    Manually calculate costs for a specific line in the dataframe to compare results.
+    """
+    # Simulate manual calculation for Adubos e Corretivos in Cametá
+    matrices_local = MatricesLocal("tbextensa.xls")
+    result_matrix_std = matrices_local.format_value(seller_location="Cametá")
+
+    # Calculate values
+    y = result_matrix_std.iloc[:-5, -1].sum()  # Total from sector 'Adubos e Corretivos'
+    Y = result_matrix_std.iloc[0, -1]         # Alpha production sector value
+    I = 7018  # Given costs for Adubos e Corretivos in Cametá
+
+    T = I / y  # Cost coefficient
+    C = T * Y  # Final cost
+
+    # Run the same calculation through the algorithm
+    result = cost_calculator.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="AAProdução")
+    calculated_C = result.loc["Adubos e Corretivos", "Cametá"]
+
+    # Assertions to verify results
+    assert round(calculated_C, 2) == round(C, 2), f"Expected {C}, got {calculated_C}"
