@@ -1,30 +1,53 @@
 import pandas as pd
-from matrices.matrices import Matrices
+from matrices.matrices_local import MatricesLocal
+
 
 class CostMatrix:
     def __init__(self, table_path: str = None, inputs_path: str = None):
         """
-        Initializes the CostMatrixCalculator object, pulling from the existing Matrices class 
-        and setting up the inputs DataFrame.
+        Initializes the CostMatrix object, integrating functionalities from the MatricesLocal class 
+        and preparing data structures for handling value matrices, input matrices, and production sector values.
 
         Parameters:
         ----------
-        table_path (str, optional): Path to the Excel file for Matrices initialization. Default is None.
-        inputs_path (str): Path to the inputs Excel file.
+        table_path (str, optional): 
+            Path to the Excel file containing the primary data for initializing the MatricesLocal class.
+            Default is None.
+        
+        inputs_path (str, optional): 
+            Path to the Excel file containing the input data for the calculation of costs or production inputs. 
+            Default is None.
+
+        Attributes:
+        ----------
+        matrices (MatricesLocal): 
+            An instance of MatricesLocal initialized with the provided table_path. This handles matrix generation.
+
+        inputs_matrix (pd.DataFrame): 
+            A DataFrame loaded from the inputs_path, containing data for input costs.
+
+        value_matrices (dict): 
+            Stores value matrices for each seller location.
+
+        input_matrices (dict): 
+            Stores input matrices for each seller location.
+
+        alfa_production_sector_gvp_values (dict): 
+            Stores GVP (Gross Value of Production) values for alpha production sectors.
+
+        alfa_and_beta_gvp (float): 
+            Combined GVP values for alpha and beta sectors, shared across all locations.
         """
-        self.matrices = Matrices(table_path)
+        self.matrices = MatricesLocal(table_path)
         self.inputs_matrix = pd.read_excel(inputs_path)
-
-        self.seller_locations = []
         self.value_matrices = {}
-        self.I_matrices = {}
-        self.Y_values = {}
-        self.y = None  
+        self.input_matrices = {}
+        self.alfa_production_sector_gvp_values = {}
+        self.alfa_and_beta_gvp = None
 
-    def set_seller_locations(self, seller_locations):
+    def _prepare_locations(self, seller_locations):
         """
-        Sets the seller locations, prepares the inputs matrices for calculations,
-        and formats the value matrices based on the seller locations.
+        Prepares the data structures for the given seller locations, including value matrices and input matrices.
 
         Parameters:
         ----------
@@ -32,8 +55,6 @@ class CostMatrix:
         """
         if isinstance(seller_locations, str):
             seller_locations = [seller_locations]
-
-        self.seller_locations = seller_locations
 
         for location in seller_locations:
             if location not in self.inputs_matrix.iloc[:, 0].values:
@@ -44,62 +65,73 @@ class CostMatrix:
             )
 
             filtered_matrix = self.inputs_matrix[self.inputs_matrix.iloc[:, 0] == location].copy()
-            I = filtered_matrix.drop(filtered_matrix.columns[0], axis=1).transpose()
-            I.columns = [f"{location}"]
-            self.I_matrices[location] = I
+            inputs = filtered_matrix.drop(filtered_matrix.columns[0], axis=1).transpose()
+            inputs.columns = [f"{location}"]
+            self.input_matrices[location] = inputs
 
-    def _set_Y(self):
+    def _set_alfa_production_sector_gvp(self, alfa_sector: str = 'AAProdução'):
         """
-        Sets the Y values by identifying the 'AAProdução' sector's total sales for each location.
+        Sets the GVP values for the alpha production sector based on the total sales for each location.
 
+        Parameters:
+        ----------
+        alfa_sector (str): The sector used to calculate GVP (default is 'AAProdução').
         """
-        for location in self.seller_locations:
-            value_matrix = self.value_matrices[location]
-            if 'AAProdução' in value_matrix.index:
-                self.Y_values[location] = value_matrix.at['AAProdução', f"Total{self.matrices.value_field}Sold"]
+        for location, value_matrix in self.value_matrices.items():
+            if alfa_sector in value_matrix.index:
+                self.alfa_production_sector_gvp_values[location] = value_matrix.at[
+                    alfa_sector, f"Total{self.matrices.value_field}Sold"
+                ]
             else:
-                raise KeyError(f"The 'AAProdução' sector was not found in the data for location '{location}'.")
+                raise KeyError(f"The '{alfa_sector}' sector was not found in the data for location '{location}'.")
 
-    def _calculate_y(self):
+    def _calculate_alfa_and_beta_gvp(self):
         """
-        Calculates the y value as the sum of all sales totals for sectors starting with 'A' or 'B'.
+        Calculates the combined GVP value as the sum of all sales totals for sectors starting with 'A' or 'B'.
         This value is shared across all locations.
         """
-        if self.y is None:
-            y_total = 0
+        if self.alfa_and_beta_gvp is None:
+            alfa_and_beta_gvp_total = 0
             for value_matrix in self.value_matrices.values():
                 for sector in value_matrix.index:
                     if sector.startswith('A') or sector.startswith('B'):
-                        y_total += value_matrix.at[sector, f"Total{self.matrices.value_field}Sold"]
-            self.y = y_total
+                        alfa_and_beta_gvp_total += value_matrix.at[sector, f"Total{self.matrices.value_field}Sold"]
+            self.alfa_and_beta_gvp = alfa_and_beta_gvp_total
 
-    def calculate_cost_matrix(self):
+    def calculate_cost_matrix(self, seller_locations, alfa_sector: str = 'AAProdução'):
         """
         Calculates the cost matrix using the formula T = I / y and C = T * Y for each location.
-        
+
+        Parameters:
+        ----------
+        seller_locations (str or list): A single location as a string or a list of locations.
+        alfa_sector (str, optional): The sector used to calculate GVP (default is 'AAProdução').
+
         Returns:
         -------
         pd.DataFrame: The calculated cost matrix C, with columns for each seller location.
-        """
-        
-        if not self.seller_locations:
-            raise ValueError("Seller locations have not been set. Please call set_seller_locations first.")
 
-        if not self.Y_values:
-            self._set_Y()
-        
-        if self.y is None:
-            self._calculate_y()
+        Raises:
+        -------
+        ValueError: If GVP values are not set before calling the method.
+        """
+        self._prepare_locations(seller_locations)
+
+        if not self.alfa_production_sector_gvp_values:
+            self._set_alfa_production_sector_gvp(alfa_sector)
+
+        if self.alfa_and_beta_gvp is None:
+            self._calculate_alfa_and_beta_gvp()
 
         cost_matrices = []
 
-        for location in self.seller_locations:
-            I = self.I_matrices[location]
-            Y = self.Y_values[location]
+        for location in seller_locations:
+            inputs = self.input_matrices[location]
+            alfa_production_sector_gvp = self.alfa_production_sector_gvp_values[location]
 
-            T = I / self.y
-            C = T * Y
-            cost_matrices.append(C)
+            costs_coeff = inputs / self.alfa_and_beta_gvp
+            costs = costs_coeff * alfa_production_sector_gvp
+            cost_matrices.append(costs)
 
         final_cost_matrix = pd.concat(cost_matrices, axis=1)
 
