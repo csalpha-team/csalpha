@@ -24,16 +24,15 @@ def sample_inputs():
     return data
 
 @pytest.fixture
-def cost_matrix_instance(mocker, sample_inputs, sample_table):
+def cost_matrix_instance(sample_inputs, sample_table):
     """
-    Creates a mock instance of CostMatrix using sample data and a patched MatricesLocal.
+    Creates an instance of CostMatrix using sample data for inputs and table.
     """
-    mocker.patch('matrices.matrices_local.MatricesLocal', autospec=True)
-    matrices_local_mock = MatricesLocal()
-    matrices_local_mock.dataframe = sample_table
+    matrices_local_instance = MatricesLocal()
+    matrices_local_instance.dataframe = sample_table
 
     instance = CostMatrix(table_path=None, inputs_path=None)
-    instance.matrices = matrices_local_mock
+    instance.matrices = matrices_local_instance
     instance.inputs_matrix = sample_inputs
     return instance
 
