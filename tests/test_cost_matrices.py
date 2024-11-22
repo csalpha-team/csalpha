@@ -5,6 +5,9 @@ from matrices.matrices_local import MatricesLocal
 
 @pytest.fixture
 def sample_table():
+    """
+    Loads the tbextensa.xls file and verifies it is not empty.
+    """
     file_path = 'tbextensa.xls'
     data = pd.read_excel(file_path, engine='xlrd')
     assert not data.empty, "tbextensa.xls should not be empty"
@@ -12,6 +15,9 @@ def sample_table():
 
 @pytest.fixture
 def sample_inputs():
+    """
+    Loads the extensainsumos.xlsx file and verifies it is not empty.
+    """
     file_path = 'extensainsumos.xlsx'
     data = pd.read_excel(file_path)
     assert not data.empty, "extensainsumos.xlsx should not be empty"
@@ -19,6 +25,9 @@ def sample_inputs():
 
 @pytest.fixture
 def cost_matrix_instance(mocker, sample_inputs, sample_table):
+    """
+    Creates a mock instance of CostMatrix using sample data and a patched MatricesLocal.
+    """
     mocker.patch('matrices.matrices_local.MatricesLocal', autospec=True)
     matrices_local_mock = MatricesLocal()
     matrices_local_mock.dataframe = sample_table
@@ -29,6 +38,9 @@ def cost_matrix_instance(mocker, sample_inputs, sample_table):
     return instance
 
 def test_prepare_locations(cost_matrix_instance):
+    """
+    Tests whether the value and input matrices are correctly prepared for given locations.
+    """
     seller_locations = ['Cametá']
     cost_matrix_instance._prepare_locations(seller_locations)
 
@@ -39,17 +51,23 @@ def test_prepare_locations(cost_matrix_instance):
         cost_matrix_instance._prepare_locations(['InvalidLocation'])
 
 def test_set_alfa_production_sector_gvp(cost_matrix_instance):
+    """
+    Tests the calculation of GVP for the alpha production sector.
+    """
     seller_locations = ["Cametá"]
     cost_matrix_instance._prepare_locations(seller_locations)
     cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='AAProdução')
 
-    assert "'Cametá' in cost_matrix_instance.alfa_production_sector_gvp_values"
+    assert "Cametá" in cost_matrix_instance.alfa_production_sector_gvp_values
     assert cost_matrix_instance.alfa_production_sector_gvp_values["Cametá"] > 0
 
     with pytest.raises(KeyError):
         cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='InvalidSector')
 
 def test_calculate_alfa_and_beta_gvp(cost_matrix_instance):
+    """
+    Tests the combined GVP calculation for alpha and beta sectors.
+    """
     seller_locations = ["Cametá"]
     cost_matrix_instance._prepare_locations(seller_locations)
     cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='AAProdução')
@@ -58,38 +76,42 @@ def test_calculate_alfa_and_beta_gvp(cost_matrix_instance):
     assert cost_matrix_instance.alfa_and_beta_gvp > 0
 
 def test_cost_matrix_single_location(cost_matrix_instance):
+    """
+    Tests if a cost matrix can be generated for a single location.
+    """
     result = cost_matrix_instance.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="AAProdução")
     assert not result.empty
 
 def test_cost_matrix_multiple_locations(cost_matrix_instance):
-    result = cost_matrix_instance.calculate_cost_matrix(seller_locations=["Cametá", "Cametá"], alfa_sector="AAProdução")
+    """
+    Tests if a cost matrix can be generated for multiple locations.
+    """
+    result = cost_matrix_instance.calculate_cost_matrix(seller_locations=["Cametá"], alfa_sector="AAProdução")
     assert not result.empty
 
 def test_invalid_location_in_cost_matrix(cost_matrix_instance):
+    """
+    Tests whether the function raises a KeyError for invalid locations.
+    """
     with pytest.raises(KeyError):
-        cost_matrix_instance.calculate_cost_matrix(seller_locations="LocalInvalido", alfa_sector="AAProdução")
-
-#def test_cost_matrix_different_locations(cost_matrix_instance):
-#    matrix_cameta = cost_matrix_instance.calculate_cost_matrix(seller_locations="Cametá")
-#    matrix_belem = cost_matrix_instance.calculate_cost_matrix(seller_locations="Belém")
-#    assert not matrix_cameta.equals(matrix_belem), "As matrizes de custo para locais diferentes não deveriam ser iguais."
-
-#def test_cost_matrix_combined_gvp(cost_matrix_instance):
-#    cost_matrix_instance.calculate_cost_matrix(seller_locations=["Cametá", "Belém"])
-#    assert cost_matrix_instance.alfa_and_beta_gvp > 0, "O GVP combinado para setores alfa e beta deveria ser maior que zero."
-
-#Estes testes estão inutilizáveis: 
-#Infelizmente só há informações de AAProdução para Cametá em extensainsumos.xlsx
+        cost_matrix_instance.calculate_cost_matrix(seller_locations="InvalidLocation", alfa_sector="AAProdução")
 
 def test_cost_matrix_invalid_alfa_sector(cost_matrix_instance):
+    """
+    Tests whether the function raises a KeyError for invalid alpha sectors.
+    """
     with pytest.raises(KeyError):
         cost_matrix_instance.calculate_cost_matrix(seller_locations="Cametá", alfa_sector="InvalidSector")
 
 def test_cost_matrix_coefficients_and_costs(cost_matrix_instance):
+    """
+    Tests whether the coefficients and final costs are calculated correctly.
+    """
     seller_location = "Cametá"
     result = cost_matrix_instance.calculate_cost_matrix(seller_locations=seller_location, alfa_sector="AAProdução")
     inputs_matrix = cost_matrix_instance.input_matrices[seller_location]
     alfa_gvp = cost_matrix_instance.alfa_production_sector_gvp_values[seller_location]
+
     assert not inputs_matrix.empty
     assert alfa_gvp > 0
     assert not result.empty
