@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from matrices.matrices_local import MatricesLocal
-from cost_matrix import CostMatrix  # Substitua pelo nome do arquivo onde a classe CostMatrix está definida
+from matrices.cost_matrices import CostMatrix  
 
 @pytest.fixture
 def sample_inputs():
