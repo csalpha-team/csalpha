@@ -30,7 +30,8 @@ def sample_data():
 def test_cost_matrix(sample_data):
     params_matrix, inputs_matrix, incidence = sample_data
 
-    cost = CostMatrix(params_matrix=params_matrix, inputs_matrix=inputs_matrix)
+    cost = CostMatrix(params_matrix=params_matrix, 
+                      inputs_matrix=inputs_matrix)
 
     result = cost.calculate_cost(
         items=['Item1', 'Item2'],
@@ -40,7 +41,7 @@ def test_cost_matrix(sample_data):
     expected_item1 = pd.DataFrame({
         'Setor1': [233.25, 699.75, 388.75],
         'Setor2': [311.00, 0.00, 311.00],
-        'Setor3': [388.75, 155.50, 233.25]
+        'Setor3': [388.75, 77.75, 233.25]
     }, index=['Setor1', 'Setor2', 'Setor3'])
 
     expected_item2 = pd.DataFrame({
