@@ -103,3 +103,8 @@ cookiecutter-pypackage-env/
 
 # IDE settings
 .vscode/
+
+# Some files to ignore
+data_quant.csv
+data_quant.xlsx
+test.xlsx
