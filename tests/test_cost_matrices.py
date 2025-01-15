@@ -1,85 +1,67 @@
+from matrices.cost_matrices import CostMatrix  
 import pytest
 import pandas as pd
-from matrices.matrices_local import MatricesLocal
-from matrices.cost_matrices import CostMatrix  
 
 @pytest.fixture
-def sample_inputs():
-    data = {
-        'Location': ['Cameta', 'Santarem', 'Belem'],
-        'Input1': [100, 200, 300],
-        'Input2': [400, 500, 600]
+def sample_data():
+
+    params_matrix_data = {
+        'Sector': ['Setor1', 'Setor1', 'Setor2', 'Setor2', 'Setor3', 'Setor3'],
+        'Item': ['Item1', 'Item2', 'Item1', 'Item2', 'Item1', 'Item2'],
+        'Setor1': [0.3, 0.6, 0.9, 0.2, 0.5, 0.9],
+        'Setor2': [0.4, 0.7, 0.0, 0.3, 0.4, 0.8],
+        'Setor3': [0.5, 0.8, 0.1, 0.4, 0.3, 0.7]
     }
-    return pd.DataFrame(data)
+    params_matrix = pd.DataFrame(params_matrix_data)
 
-@pytest.fixture
-def sample_table():
-    # Simula a tabela para MatricesLocal
-    data = {
-        'Produto': ['AcaiFruto', 'AcaiFruto', 'CacauAmendoa'],
-        'LocalDoAgenteQueVende': ['Cameta', 'Santarem', 'Belem'],
-        'SetorDoAgenteQueVendeI': ['AAProdução', 'ABProdução', 'BBProdução'],
-        'Valor': [1000, 2000, 3000]
+    inputs_matrix_data = {
+        'Item1': [0.5],
+        'Item2': [0.7]
     }
-    return pd.DataFrame(data)
+    inputs_matrix = pd.DataFrame(inputs_matrix_data, index=['Loc1'])
 
-@pytest.fixture
-def cost_matrix_instance(mocker, sample_inputs, sample_table):
-    # Simula o comportamento do MatricesLocal
-    mocker.patch('matrices.matrices_local.MatricesLocal', autospec=True)
-    matrices_local_mock = MatricesLocal()
-    matrices_local_mock.dataframe = sample_table
+    incidence = {
+        'Item1': 1555,
+        'Item2': 2250
+    }
 
-    # Retorna a instância da CostMatrix
-    instance = CostMatrix(table_path=None, inputs_path=None)
-    instance.matrices = matrices_local_mock
-    instance.inputs_matrix = sample_inputs
-    return instance
+    return params_matrix, inputs_matrix, incidence
 
-def test_prepare_locations(cost_matrix_instance):
-    seller_locations = ['Cameta', 'Santarem']
-    cost_matrix_instance._prepare_locations(seller_locations)
+def test_cost_matrix(sample_data):
+    params_matrix, inputs_matrix, incidence = sample_data
 
-    assert 'Cameta' in cost_matrix_instance.value_matrices
-    assert 'Santarem' in cost_matrix_instance.value_matrices
-    assert 'Cameta' in cost_matrix_instance.input_matrices
-    assert 'Santarem' in cost_matrix_instance.input_matrices
+    cost = CostMatrix(params_matrix=params_matrix, inputs_matrix=inputs_matrix)
 
-    with pytest.raises(KeyError):
-        cost_matrix_instance._prepare_locations(['InvalidLocation'])
+    result = cost.calculate_cost(
+        items=['Item1', 'Item2'],
+        incidence=incidence
+    )
 
-def test_set_alfa_production_sector_gvp(cost_matrix_instance):
-    seller_locations = ['Cameta']
-    cost_matrix_instance._prepare_locations(seller_locations)
-    cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='AAProdução')
+    expected_item1 = pd.DataFrame({
+        'Setor1': [233.25, 699.75, 388.75],
+        'Setor2': [311.00, 0.00, 311.00],
+        'Setor3': [388.75, 155.50, 233.25]
+    }, index=['Setor1', 'Setor2', 'Setor3'])
 
-    assert 'Cameta' in cost_matrix_instance.alfa_production_sector_gvp_values
-    assert cost_matrix_instance.alfa_production_sector_gvp_values['Cameta'] > 0
+    expected_item2 = pd.DataFrame({
+        'Setor1': [945.0, 315.0, 1417.5],
+        'Setor2': [1102.5, 472.5, 1260.0],
+        'Setor3': [1260.0, 630.0, 1102.5]
+    }, index=['Setor1', 'Setor2', 'Setor3'])
 
-    with pytest.raises(KeyError):
-        cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='InvalidSector')
+    pd.testing.assert_frame_equal(result['Item1'], expected_item1)
+    pd.testing.assert_frame_equal(result['Item2'], expected_item2)
 
-def test_calculate_alfa_and_beta_gvp(cost_matrix_instance):
-    seller_locations = ['Cameta', 'Santarem']
-    cost_matrix_instance._prepare_locations(seller_locations)
-    cost_matrix_instance._set_alfa_production_sector_gvp(alfa_sector='AAProdução')
-    cost_matrix_instance._calculate_alfa_and_beta_gvp()
+def test_missing_item_in_incidence(sample_data):
+    params_matrix, inputs_matrix, incidence = sample_data
 
-    assert cost_matrix_instance.alfa_and_beta_gvp > 0
+    del incidence['Item2']
 
-def test_calculate_cost_matrix(cost_matrix_instance):
-    seller_locations = ['Cameta', 'Santarem']
-    result = cost_matrix_instance.calculate_cost_matrix(seller_locations, alfa_sector='AAProdução')
+    cost = CostMatrix(params_matrix=params_matrix, inputs_matrix=inputs_matrix)
 
-    assert not result.empty
-    assert 'Cameta' in result.columns
-    assert 'Santarem' in result.columns
-
-def test_calculate_cost_matrix_invalid_sector(cost_matrix_instance):
-    seller_locations = ['Cameta']
-    with pytest.raises(KeyError):
-        cost_matrix_instance.calculate_cost_matrix(seller_locations, alfa_sector='InvalidSector')
-
-def test_calculate_cost_matrix_without_locations(cost_matrix_instance):
-    with pytest.raises(KeyError):
-        cost_matrix_instance.calculate_cost_matrix([], alfa_sector='AAProdução')
+    result = cost.calculate_cost(
+        items=['Item1', 'Item2'],
+        incidence=incidence
+    )
+    assert 'Item1' in result
+    assert 'Item2' not in result
