@@ -292,7 +292,6 @@ class Matrices(MatricesBase):
                               qtt_field: str,
                               val_field: str,
                               df: pd.DataFrame = pd.DataFrame(),
-                              insert_total = True
                               ) -> pd.DataFrame:
         """
         Formats and creates an implicit price matrix.
@@ -323,7 +322,7 @@ class Matrices(MatricesBase):
                                                product=product,
                                                matrice_type=qtt_field,
                                                aggregate_method='sum',
-                                               insert_total=insert_total
+                                               insert_total=True
                                                ).rename(columns={f'Total{self.quantity_field}Sold': 'TotalImplicitPriceSold'}, index={f"Total{self.quantity_field}Bought": "TotalImplicitPriceBought"})
         
 
@@ -332,7 +331,7 @@ class Matrices(MatricesBase):
                                                 product=product,
                                                 matrice_type=val_field,
                                                 aggregate_method='sum',
-                                                insert_total=insert_total
+                                                insert_total=True
                                             ).rename(columns={f'Total{self.value_field}Sold': 'TotalImplicitPriceSold'}, index={f"Total{self.value_field}Bought": "TotalImplicitPriceBought"})
 
 
@@ -349,7 +348,6 @@ class Matrices(MatricesBase):
                      qtt_field: str,
                      val_field: str,
                      df: pd.DataFrame = pd.DataFrame(),
-                     insert_total = True
                      ) -> pd.DataFrame:
         
         """
@@ -380,10 +378,8 @@ class Matrices(MatricesBase):
                                                 df=df,
                                                 product=product,
                                                 qtt_field=qtt_field,
-                                                val_field=val_field,
-                                                insert_total=False                           
+                                                val_field=val_field,                        
                                             )
         
-        self.pricing_matrix = self.implicit_price_matrix/self.implicit_price_matrix.iloc[0].mean()
-
+        self.pricing_matrix = self.implicit_price_matrix/self.implicit_price_matrix[self.implicit_price_matrix.columns.tolist()[-1]][0] # Selecting the total value sold
         return self.pricing_matrix
