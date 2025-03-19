@@ -141,7 +141,7 @@ class Circuit(CircuitBase):
 
 
 
-    def remove_launch_from_circuit(self, launcher_id: str or LauncherBase):
+    def remove_launch_from_circuit(self, launcher_id: str | LauncherBase):
         """
         Removes a launch from the specified circuit.
 
