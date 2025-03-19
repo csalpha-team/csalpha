@@ -117,7 +117,7 @@ class Matrices(MatricesBase):
         # Setting matrice type
         self.matrice_type = matrice_type # It must be present in the dataframe
 
-        if not df[df['Produto'] == product].empty:
+        if not df[df['Produto'] == product].empty: # TODO: modify this hardcoded 'Produto'
             df = df[df['Produto'] == product]
         else:
             raise(KeyError(f"The selected product {product} was not found in the dataframe."))
