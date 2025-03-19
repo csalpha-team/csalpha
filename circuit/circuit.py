@@ -71,14 +71,14 @@ class Circuit(CircuitBase):
     def is_closed(self):
         return self._circuit_closed
 
-
+    # TODO: verifying if this condition is properly set
     def circuit_closed(self, value):
         # When set to False, calculate oversold, overbought
         # And perform the data filling processes for the launches
         # present in this circuit
         if value:
             self.fill_strategy()
-            self._sobrevenda = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))])
+            self._sobrevenda = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))]) # TODO: remove hardcoded quantidade
             self._sobrecompra = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))])
             self._circuit_closed = value
 
@@ -87,6 +87,7 @@ class Circuit(CircuitBase):
         self._dataframe_circuit['overbought'] = self._sobrevenda
         self._dataframe_circuit['circuitClosed'] = self._circuit_closed
 
+    # TODO: check if this strategy makes sense
     def fill_strategy(self):
         """
         Fills the data according to a predefined strategy.
