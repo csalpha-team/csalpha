@@ -42,7 +42,7 @@ class InputOutputMatrix:
 
     def _retrieve_forecast(self,
                            product: str,
-                           year: str | int) -> Tuple[float, float]:
+                           year: Union[str, int]) -> Tuple[float, float]:
         """Retrieves forecast values, handling years as integers or strings."""
         try:
             value = self.value_forecast_data[product][year]
