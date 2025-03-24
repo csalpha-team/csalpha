@@ -1,5 +1,5 @@
 import pandas as pd
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Union
 
 class InputOutputMatrix:
     def __init__(self,
@@ -28,7 +28,7 @@ class InputOutputMatrix:
 
     def generate_iom(self,
                      product: str,
-                     year: str | int) -> pd.DataFrame:
+                     year: Union[str, int]) -> pd.DataFrame:
         """Generates the Input-Output Matrix (IOM) for a specific product and year."""
         value_forecast, quantity_forecast = self._retrieve_forecast(product, year)
         price_forecast = value_forecast / quantity_forecast

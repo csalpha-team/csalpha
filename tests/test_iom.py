@@ -2,8 +2,7 @@ import pytest
 import pandas as pd
 
 from typing import Dict, Any
-from iom import InputOutputMatrix  # Change to your actual import path
-# from your_module import InputOutputMatrix  # Uncomment and change 'your_module' to the actual import path
+from iom import InputOutputMatrix 
 
 # ----------------------------------------------------------------------
 # 1. Fixtures

@@ -3,7 +3,7 @@ from launcher.abstract_launcher import LauncherBase
 import warnings
 import hashlib
 import time
-from typing import Any
+from typing import Any, Union
 import numpy as np
 import pandas as pd
 
@@ -141,7 +141,7 @@ class Circuit(CircuitBase):
 
 
 
-    def remove_launch_from_circuit(self, launcher_id: str | LauncherBase):
+    def remove_launch_from_circuit(self, launcher_id: Union[str, LauncherBase]):
         """
         Removes a launch from the specified circuit.
 
