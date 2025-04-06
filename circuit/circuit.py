@@ -77,33 +77,16 @@ class Circuit(CircuitBase):
         # And perform the data filling processes for the launches
         # present in this circuit
         if value:
-            self.fill_strategy()
-            self._sobrevenda = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))]) # TODO: remove hardcoded quantidade
-            self._sobrecompra = np.mean([list(self._dict_circuit.values())[i]['quantidade'] for i in range(len(self._dict_circuit.values()))])
-            self._circuit_closed = value
+            if self._sobrevenda==self._sobrecompra:
+                self._circuit_closed = True
+            else:
+                self._circuit_closed = False
+                warnings.warn(f"The circuit is not properly closed, since the oversold is not equal to overbought. Value oversold {self._dataframe_circuit['oversold']}, value overbought {self._dataframe_circuit['overbought']}")
 
         self._circuit_closed = value
         self._dataframe_circuit['oversold'] = self._sobrevenda
-        self._dataframe_circuit['overbought'] = self._sobrevenda
+        self._dataframe_circuit['overbought'] = self._sobrecompra
         self._dataframe_circuit['circuitClosed'] = self._circuit_closed
-
-    # TODO: check if this strategy makes sense
-    def fill_strategy(self):
-        """
-        Fills the data according to a predefined strategy.
-        """
-        for col in self._dataframe_circuit.fillna(-1).select_dtypes(include=np.number).columns:
-            if self._dataframe_circuit[col].isnull().sum() > 0:
-                try:
-                    self._dataframe_circuit[col] = self._dataframe_circuit[col].fillna(self._dataframe_circuit[col].mean())
-                
-                except Exception as e:
-                    self._dataframe_circuit[col] = self._dataframe_circuit[col].fillna(np.nan)
-                    warnings.WarningMessage(f'An error occurred while filling missing data in column {col}: {e}')
-
-        self._dict_circuit = self._dataframe_circuit.set_index('launcher_id').to_dict(orient='index')
-
-
 
     def _create_circuit(self, circuit_id='auto'):
         """
