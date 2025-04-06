@@ -1,5 +1,5 @@
 import pandas as pd
-
+from typing import List, Dict, Any
 
 class FlowBalancer:
     """
@@ -47,16 +47,17 @@ class FlowBalancer:
             DataFrame used in the balancing process. It is assigned inside
             `balance()` and may be inspected after balancing completes.
     """
+    # TODO: Create typehint
     def __init__(self,
-                 dataframe,
-                 monitoring_sectors,
-                 sector_correction,
-                 sector_col_name,
-                 total_col="Totali",
-                 total_row="Totalj",
-                 decimal_places=3,
-                 target_threshold=1e-6,
-                 max_iterations=100):
+                 dataframe: pd.DataFrame,
+                 monitoring_sectors: List[str] ,
+                 sector_correction: Dict[Any],
+                 sector_col_name: str,
+                 total_col: str="Totali",
+                 total_row: str="Totalj",
+                 decimal_places: int=3,
+                 target_threshold: float=1e-6,
+                 max_iterations: int=100) -> None:
         """
         Initialize a FlowBalancer object.
 
@@ -97,12 +98,12 @@ class FlowBalancer:
 
     def generate_fixed_dataframe(
         self,
-        dataframe,
-        total_purchase,
-        total_sale,
-        sell_sector_name,
-        correction_year
-    ):
+        dataframe: pd.DataFrame,
+        total_purchase: str,
+        total_sale: str,
+        sell_sector_name: str,
+        correction_year: str
+    ) -> pd.DataFrame:
         """
         Generate a modified DataFrame with sector corrections applied,
         recalculating row and column totals as needed.
@@ -153,7 +154,7 @@ class FlowBalancer:
         return temp_dataframe
 
 
-    def generate_equilibrium_condition(self, dataframe):
+    def generate_equilibrium_condition(self, dataframe: pd.DataFrame) -> pd.DataFrame:
         """
         Compute the equilibrium condition in the DataFrame by creating or
         updating a 'verif_equi' column.
@@ -181,7 +182,7 @@ class FlowBalancer:
 
         return dataframe
 
-    def check_if_balanced(self, dataframe):
+    def check_if_balanced(self, dataframe: pd.DataFrame) -> bool:
         """
         Check if the provided DataFrame is balanced based on the 'verif_equi' column.
 
@@ -200,7 +201,7 @@ class FlowBalancer:
         verification = self.generate_equilibrium_condition(dataframe)
         return not bool(sum(verification['verif_equi'].abs()))
 
-    def balance(self, correction_year):
+    def balance(self, correction_year: str) -> pd.DataFrame:
         """
         Iteratively adjust the DataFrame to minimize the 'verif_equi' values 
         for the monitoring sectors until they are below the target threshold 
@@ -299,7 +300,7 @@ class FlowBalancer:
 
 
 
-def generate_dataframe_forecast(dataframe_forecast: pd.DataFrame, correction_year: dict):
+def generate_dataframe_forecast(dataframe_forecast: pd.DataFrame, correction_year: dict) -> pd.DataFrame:
     """
     Generate a forecasted DataFrame by applying correction factors 
     for specific years and then extrapolating values for subsequent 
