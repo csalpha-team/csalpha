@@ -48,16 +48,18 @@ class FlowBalancer:
             `balance()` and may be inspected after balancing completes.
     """
     # TODO: Create typehint
-    def __init__(self,
-                 dataframe: pd.DataFrame,
-                 monitoring_sectors: List[str] ,
-                 sector_correction: Dict[Any],
-                 sector_col_name: str,
-                 total_col: str="Totali",
-                 total_row: str="Totalj",
-                 decimal_places: int=3,
-                 target_threshold: float=1e-6,
-                 max_iterations: int=100) -> None:
+    def __init__(
+        self,
+        dataframe: pd.DataFrame,
+        monitoring_sectors: List[str],
+        sector_correction: Dict[str, Dict[str, float]],  # Fixed type hint
+        sector_col_name: str,
+        total_col: str = "Totali",
+        total_row: str = "Totalj",
+        decimal_places: int = 3,
+        target_threshold: float = 1e-6,
+        max_iterations: int = 100
+    ) -> None:
         """
         Initialize a FlowBalancer object.
 
