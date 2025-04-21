@@ -56,6 +56,10 @@ class Launcher(LauncherBase):
             "valor": None,
             "numeroDeAgentesVendaNoLancamento": None,
             "numeroDeAgentesCompraNoLancamento": None,
+            "situacaoLancamento": None,
+            "situacaoCircuito": None,
+            "numeroDoLancamento": None,
+            "numeroDoCircuito": None
         }
     
     def input_data(self, **kwargs) -> None:

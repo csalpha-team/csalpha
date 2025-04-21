@@ -29,11 +29,17 @@ def test_if_tabela_show_table_is_dataframe():
 
     cols = data.columns
 
+    # Remove accents and normalize
     cols = [remove_accents(x) for x in cols]
 
+    # Remove spaces to form camelCase
+    cols = [col.replace(' ', '') for col in cols]
+
+    # Assign processed column names
     data.columns = cols
 
-    data.columns = [x[0].lower()+x[1:] for x in data.columns]
+    # Lowercase the first character of each column name
+    data.columns = [x[0].lower() + x[1:] for x in data.columns]
 
     table = Table()
 

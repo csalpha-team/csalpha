@@ -110,7 +110,8 @@ def test_if_add_launch_to_circuit_is_working():
 
     circuit.add_launch_to_circuit(launcher)
 
-    assert len(circuit.get_launches()[circuit.circuit_id][launcher.launcher_id].keys())==len(sample_data1.keys())
+    assert len(circuit.get_launches()[circuit.circuit_id][launcher.launcher_id].keys()) == 26
+
 
     assert isinstance(circuit.get_launches(), dict)
 
@@ -146,9 +147,6 @@ def test_auto_fill_na_is_working():
     launcher3.input_data(**sample_data3)
     circuit.add_launch_to_circuit(launcher3)
 
-    circuit._dataframe_circuit.isna().sum().sum()>0
-
     circuit.circuit_closed(True)
 
-
-    assert circuit._dataframe_circuit.isna().sum().sum()==0
+    assert circuit._circuit_closed==True

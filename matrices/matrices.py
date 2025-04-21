@@ -14,7 +14,8 @@ class Matrices(MatricesBase):
                  quantity_field: str = "Quantidade",
                  value_field: str = "Valor",
                  seller_sector_agent: str = "SetorDoAgenteQueVendeI",
-                 buyer_sector_agent: str = "SetorDoAgenteQueCompraI"
+                 buyer_sector_agent: str = "SetorDoAgenteQueCompraI",
+                 field_product_name: str = 'Produto'
 
                  ) -> None:
         """
@@ -63,6 +64,8 @@ class Matrices(MatricesBase):
         self.implicit_price_matrix = pd.DataFrame()
 
         self.pricing_matrix = pd.DataFrame()
+        
+        self.field_product_name = field_product_name
 
     def _row_sum(self, row: pd.Series) -> pd.Series:
         """Calculates the sum of the values in a row.
@@ -117,8 +120,8 @@ class Matrices(MatricesBase):
         # Setting matrice type
         self.matrice_type = matrice_type # It must be present in the dataframe
 
-        if not df[df['Produto'] == product].empty:
-            df = df[df['Produto'] == product]
+        if not df[df[self.field_product_name] == product].empty: # NOTE: Modified the hardcoded 'Produto' to self.field_product_name
+            df = df[df[self.field_product_name] == product] 
         else:
             raise(KeyError(f"The selected product {product} was not found in the dataframe."))
 
@@ -243,7 +246,8 @@ class Matrices(MatricesBase):
                                                matrice_type=qtt_field,
                                                aggregate_method='sum')
         
-        total_production = self.qtt_matrix[f"Total{qtt_field}Sold"].sort_values(ascending=False)[1] # uses the fact that the production is the alpha-sector.
+        sorted_series = self.qtt_matrix[f"Total{qtt_field}Sold"].sort_values(ascending=False)
+        total_production = sorted_series.iloc[1] # uses the fact that the production is the alpha-sector.
 
         self.parametric_matrix = self.qtt_matrix / total_production
 
@@ -292,7 +296,6 @@ class Matrices(MatricesBase):
                               qtt_field: str,
                               val_field: str,
                               df: pd.DataFrame = pd.DataFrame(),
-                              insert_total = True
                               ) -> pd.DataFrame:
         """
         Formats and creates an implicit price matrix.
@@ -323,7 +326,7 @@ class Matrices(MatricesBase):
                                                product=product,
                                                matrice_type=qtt_field,
                                                aggregate_method='sum',
-                                               insert_total=insert_total
+                                               insert_total=True
                                                ).rename(columns={f'Total{self.quantity_field}Sold': 'TotalImplicitPriceSold'}, index={f"Total{self.quantity_field}Bought": "TotalImplicitPriceBought"})
         
 
@@ -332,7 +335,7 @@ class Matrices(MatricesBase):
                                                 product=product,
                                                 matrice_type=val_field,
                                                 aggregate_method='sum',
-                                                insert_total=insert_total
+                                                insert_total=True
                                             ).rename(columns={f'Total{self.value_field}Sold': 'TotalImplicitPriceSold'}, index={f"Total{self.value_field}Bought": "TotalImplicitPriceBought"})
 
 
@@ -349,7 +352,6 @@ class Matrices(MatricesBase):
                      qtt_field: str,
                      val_field: str,
                      df: pd.DataFrame = pd.DataFrame(),
-                     insert_total = True
                      ) -> pd.DataFrame:
         
         """
@@ -380,10 +382,10 @@ class Matrices(MatricesBase):
                                                 df=df,
                                                 product=product,
                                                 qtt_field=qtt_field,
-                                                val_field=val_field,
-                                                insert_total=False                           
+                                                val_field=val_field,                        
                                             )
+        implicit_price_last_column = self.implicit_price_matrix.columns[-1]
+        # self.pricing_matrix = self.implicit_price_matrix/self.implicit_price_matrix[self.implicit_price_matrix.columns.tolist()[-1]][0] # Selecting the total value sold
+        self.pricing_matrix = self.implicit_price_matrix/self.implicit_price_matrix[implicit_price_last_column].iloc[0]
         
-        self.pricing_matrix = self.implicit_price_matrix/self.implicit_price_matrix.iloc[0].mean()
-
         return self.pricing_matrix

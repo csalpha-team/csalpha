@@ -97,7 +97,7 @@ target/
 output/
 python_boilerplate/
 cookiecutter-pypackage-env/
-
+data_to_test/
 # Python Notebooks
 *.ipynb
 

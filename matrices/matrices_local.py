@@ -17,6 +17,7 @@ class MatricesLocal(Matrices):
         buyer_sector_agent: str = "SetorDoAgenteQueCompraI",
         seller_local_agent: str = "LocalDoAgenteQueVende",
         buyer_local_agent: str = "LocalDoAgenteQueCompra",
+        field_product_name: str = 'Produto'
     ):
         super().__init__(
             table_path=table_path,
@@ -24,6 +25,7 @@ class MatricesLocal(Matrices):
             value_field=value_field,
             seller_sector_agent=seller_sector_agent,
             buyer_sector_agent=buyer_sector_agent,
+            field_product_name=field_product_name
         )
 
         #inicializar atributos de localização
@@ -51,8 +53,8 @@ class MatricesLocal(Matrices):
             df = self.dataframe.copy()
 
         if product:
-            if not df[df['Produto'] == product].empty:
-                df = df[df['Produto'] == product]
+            if not df[df[self.field_product_name] == product].empty:
+                df = df[df[self.field_product_name] == product]
             else:
                 raise KeyError(f"The selected product {product} was not found in the dataframe.")
 
@@ -164,7 +166,7 @@ class MatricesLocal(Matrices):
             buyer_location=buyer_location
         )
 
-        total_production = self.qtt_matrix[f"Total{qtt_field}Sold"].sort_values(ascending=False)[1]
+        total_production = self.qtt_matrix[f"Total{qtt_field}Sold"].sort_values(ascending=False).iloc[1] # Fixed warning raised by the tox during the unit test
 
         self.parametric_matrix = self.qtt_matrix / total_production
 
