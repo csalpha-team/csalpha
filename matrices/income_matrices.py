@@ -149,7 +149,7 @@ class IncomeMatrices:
         row_totals = self.io_matrix.iloc[-1, : self.n]  # Σ rows (excluding grand total)
         col_totals = self.io_matrix.iloc[: self.n, -1]  # Σ cols (excluding grand total)
         col_totals.index = self.io_matrix.columns[: self.n]
-        added = row_totals.subtract(col_totals, fill_value=0)
+        added = row_totals.subtract(col_totals, fill_value=0).abs()
         self._add_row_to_matrix(added, self.VALUE_ADDED_ROW_NAME)
         return self.io_matrix
 
