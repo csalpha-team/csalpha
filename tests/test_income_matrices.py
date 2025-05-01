@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 from pandas.testing import assert_frame_equal
-from matries.income_matrices import IncomeMatrices
+from matrices.income_matrices import IncomeMatrices
 
 @pytest.fixture
 def setup_income_data():
